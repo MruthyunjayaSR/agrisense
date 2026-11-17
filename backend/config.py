@@ -15,9 +15,9 @@ class Config:
     HOST = os.getenv("HOST", "0.0.0.0")
 
     # Supabase Configuration
-    SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-    SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")  # anon / public key
-    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+    SUPABASE_URL = os.getenv("SUPABASE_URL", "https://qxocrgejzvtgsdzjjewl.supabase.co")
+    SUPABASE_KEY = os.getenv("SUPABASE_KEY", "sb_publishable_wexU-OLQifldyWaWutyjCg_q38g-lv-")
+    SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "sb_publishable_wexU-OLQifldyWaWutyjCg_q38g-lv-")
 
     # Storage bucket name for uploaded crop / leaf images
     SUPABASE_STORAGE_BUCKET = os.getenv("SUPABASE_STORAGE_BUCKET", "crop-images")

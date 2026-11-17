@@ -144,15 +144,12 @@ class CropRecommendationModel:
             clf = RandomForestClassifier(n_estimators=100, max_depth=12, random_state=42)
             clf.fit(X_scaled, y_encoded)
             
-            # Save bundle
-            Config.SAVED_MODELS_DIR.mkdir(parents=True, exist_ok=True)
-            bundle = {
-                "model": clf,
-                "label_encoder": le,
-                "scaler": scaler,
-                "accuracy": 0.965
-            }
-            joblib.dump(bundle, self.model_path)
+            # Save bundle if filesystem is writable
+            try:
+                Config.SAVED_MODELS_DIR.mkdir(parents=True, exist_ok=True)
+                joblib.dump(bundle, self.model_path)
+            except Exception as save_err:
+                print(f"[CropRecommendation] Running in-memory (read-only filesystem on Vercel): {save_err}")
             
             self.model = clf
             self.label_encoder = le
