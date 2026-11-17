@@ -9,25 +9,38 @@ class SupabaseService:
     Supports both real Supabase PostgreSQL/Storage and resilient local fallback.
     """
     def __init__(self):
-        self.client = None
-        self.is_configured = False
-        self._init_client()
+        self._client = None
+        self._is_configured = False
+        self._initialized = False
 
-    def _init_client(self):
+    def _ensure_init(self):
+        if self._initialized:
+            return
+        self._initialized = True
         url = Config.SUPABASE_URL
         key = Config.SUPABASE_SERVICE_ROLE_KEY or Config.SUPABASE_KEY
         
         if url and key and not "placeholder" in url and not "placeholder" in key:
             try:
                 from supabase import create_client
-                self.client = create_client(url, key)
-                self.is_configured = True
+                self._client = create_client(url, key)
+                self._is_configured = True
                 print("[SupabaseService] Connected to Supabase:", url)
             except Exception as e:
                 print(f"[SupabaseService] Failed to initialize Supabase client: {e}")
-                self.is_configured = False
+                self._is_configured = False
         else:
             print("[SupabaseService] Running with local mock fallback (no credentials configured)")
+
+    @property
+    def client(self):
+        self._ensure_init()
+        return self._client
+
+    @property
+    def is_configured(self):
+        self._ensure_init()
+        return self._is_configured
 
     # --------------------------------------------------------------------------
     # Auth helpers
