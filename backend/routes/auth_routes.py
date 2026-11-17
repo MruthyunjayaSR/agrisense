@@ -47,7 +47,13 @@ def register():
                     token=token
                 )
         except Exception as e:
-            return error_response(str(e), status_code=400)
+            err_msg = str(e)
+            print(f"[Auth] Supabase sign_up error: {err_msg}")
+            # If network error or unreachable, fall back gracefully
+            if "getaddrinfo" in err_msg or "Connect" in err_msg or "timeout" in err_msg.lower():
+                pass
+            else:
+                return error_response(err_msg, status_code=400)
 
     # 2. Local Fallback for offline development/testing
     mock_id = str(uuid.uuid4())
@@ -85,7 +91,12 @@ def login():
                     token=res.session.access_token
                 )
         except Exception as e:
-            return error_response("Invalid email or password. Please verify credentials.", status_code=401)
+            err_msg = str(e)
+            print(f"[Auth] Supabase sign_in error: {err_msg}")
+            if "getaddrinfo" in err_msg or "Connect" in err_msg or "timeout" in err_msg.lower():
+                pass
+            else:
+                return error_response("Invalid email or password. Please verify credentials.", status_code=401)
 
     # 2. Local Fallback for offline dev
     mock_id = "farmer-uid-001"
