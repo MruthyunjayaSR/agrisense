@@ -1,15 +1,10 @@
 {
-  "version": 2,
-  "functions": {
-    "api/index.py": {
-      "includeFiles": "{backend/**,frontend/**,index.html,login.html}",
-      "maxDuration": 15
-    }
-  },
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "flask",
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.py"
+      "source": "/(.*)",
+      "destination": "/api/index"
     }
   ]
 }
