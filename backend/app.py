@@ -1,0 +1,94 @@
+import os
+from pathlib import Path
+from flask import Flask, send_from_directory, jsonify
+from flask_cors import CORS
+from backend.config import Config
+
+# Blueprint imports
+from backend.routes.auth_routes import auth_bp
+from backend.routes.crop_routes import crop_bp
+from backend.routes.disease_routes import disease_bp
+from backend.routes.price_routes import price_bp
+from backend.routes.calendar_routes import calendar_bp
+from backend.routes.weather_routes import weather_bp
+from backend.routes.chatbot_routes import chatbot_bp
+from backend.routes.market_routes import market_bp
+from backend.routes.scheme_routes import scheme_bp
+from backend.services.supabase_service import supabase_service
+
+ROOT_DIR = Path(__file__).resolve().parent.parent
+
+def create_app():
+    app = Flask(__name__, static_folder=str(ROOT_DIR))
+    
+    # Enable CORS for all routes and origins
+    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    
+    # Register API Blueprints
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(crop_bp)
+    app.register_blueprint(disease_bp)
+    app.register_blueprint(price_bp)
+    app.register_blueprint(calendar_bp)
+    app.register_blueprint(weather_bp)
+    app.register_blueprint(chatbot_bp)
+    app.register_blueprint(market_bp)
+    app.register_blueprint(scheme_bp)
+    
+    # --------------------------------------------------------------------------
+    # Frontend Static & HTML Serving Routes
+    # --------------------------------------------------------------------------
+    @app.route("/")
+    def serve_index():
+        return send_from_directory(str(ROOT_DIR), "index.html")
+
+    @app.route("/index.html")
+    def serve_index_html():
+        return send_from_directory(str(ROOT_DIR), "index.html")
+
+    @app.route("/login.html")
+    def serve_login():
+        return send_from_directory(str(ROOT_DIR), "login.html")
+
+    @app.route("/frontend/<path:filename>")
+    def serve_frontend_assets(filename):
+        return send_from_directory(str(ROOT_DIR / "frontend"), filename)
+
+    # --------------------------------------------------------------------------
+    # Health Check API
+    # --------------------------------------------------------------------------
+    @app.route("/api/health")
+    def health_check():
+        return jsonify({
+            "status": "healthy",
+            "platform": "AgriSense — AI-Powered Smart Agriculture",
+            "version": "1.0.0",
+            "database": "Supabase PostgreSQL (Connected)" if supabase_service.is_configured else "Local Resilient Fallback",
+            "models_loaded": {
+                "crop_recommendation": True,
+                "disease_detection": True,
+                "price_prediction": True,
+                "crop_calendar": True
+            }
+        })
+
+    # Error Handlers
+    @app.errorhandler(404)
+    def not_found(e):
+        return jsonify({"success": False, "message": "Resource or endpoint not found"}), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        return jsonify({"success": False, "message": "Internal server error occurred"}), 500
+
+    return app
+
+app = create_app()
+
+if __name__ == "__main__":
+    print(f"================================================================")
+    print(f" AGRISENSE BACKEND SERVER STARTING")
+    print(f" URL: http://localhost:{Config.PORT}")
+    print(f" Database: {'Supabase PostgreSQL' if supabase_service.is_configured else 'Local Mode (Configure .env for Supabase)'}")
+    print(f"================================================================")
+    app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)

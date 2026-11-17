@@ -1,0 +1,1707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriSense — Intelligent Farming Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="frontend/js/supabase-client.js"></script>
+<style>
+:root{
+  --g50:#f0fdf4;--g100:#dcfce7;--g200:#bbf7d0;--g300:#86efac;--g400:#4ade80;
+  --g500:#22c55e;--g600:#16a34a;--g700:#15803d;--g800:#166534;
+  --n0:#fff;--n50:#f8fafc;--n100:#f1f5f9;--n200:#e2e8f0;--n300:#cbd5e1;
+  --n400:#94a3b8;--n500:#64748b;--n600:#475569;--n700:#334155;--n800:#1e293b;--n900:#0f172a;
+  --amber:#f59e0b;--red:#ef4444;
+  --sh1:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.04);
+  --sh2:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+  --sh3:0 12px 40px rgba(0,0,0,.1),0 4px 12px rgba(0,0,0,.05);
+  --sh4:0 24px 64px rgba(0,0,0,.12),0 8px 24px rgba(0,0,0,.06);
+  --shg:0 8px 32px rgba(34,197,94,.25);
+  --r:8px;--r2:12px;--r3:16px;--r4:20px;--r5:24px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:#fff;color:var(--n900);-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:none}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:none;border:none;outline:none;background:none}
+input,select{font-family:inherit;outline:none}
+img{display:block;max-width:100%}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--n50)}
+::-webkit-scrollbar-thumb{background:var(--g200);border-radius:99px}
+
+/* ── DIRECT MARKET CONNECT ─────────────────────────── */
+.dmc-hero{background:linear-gradient(135deg,#0f3d2a 0%,#14532d 40%,#1a6b3a 100%);border-radius:var(--r5);padding:52px 56px;display:flex;align-items:center;gap:48px;margin-bottom:48px;position:relative;overflow:hidden}
+.dmc-hero::before{content:'';position:absolute;right:-80px;top:-80px;width:360px;height:360px;border-radius:50%;background:rgba(255,255,255,.04);pointer-events:none}
+.dmc-hero::after{content:'';position:absolute;right:40px;bottom:-60px;width:220px;height:220px;border-radius:50%;background:rgba(74,222,128,.07);pointer-events:none}
+.dmc-hero-text{flex:1;z-index:1}
+.dmc-hero-text h3{font-size:2rem;font-weight:800;color:#fff;letter-spacing:-.04em;line-height:1.1;margin-bottom:14px}
+.dmc-hero-text h3 em{color:#86efac;font-style:italic;font-family:'Instrument Serif',serif;font-weight:400}
+.dmc-hero-text p{font-size:.96rem;color:rgba(255,255,255,.65);line-height:1.7;max-width:440px;margin-bottom:28px}
+.dmc-hero-stats{display:flex;gap:28px;flex-wrap:wrap}
+.dmc-hs{display:flex;flex-direction:column;gap:2px}
+.dmc-hs-n{font-size:1.5rem;font-weight:800;color:#4ade80;letter-spacing:-.04em}
+.dmc-hs-l{font-size:.68rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.dmc-hero-img{width:260px;flex-shrink:0;border-radius:var(--r3);overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.3);z-index:1}
+.dmc-hero-img img{width:100%;height:200px;object-fit:cover}
+
+/* Tabs */
+.dmc-tabs{display:flex;gap:6px;margin-bottom:32px;flex-wrap:wrap}
+.dmc-tab{padding:10px 22px;border-radius:99px;border:1.5px solid var(--n200);font-size:.86rem;font-weight:600;color:var(--n600);transition:all .2s}
+.dmc-tab.act{background:var(--g600);border-color:var(--g600);color:#fff;box-shadow:0 4px 16px rgba(22,163,74,.3)}
+
+/* Company cards grid */
+.company-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:32px}
+.company-card{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r3);padding:22px;transition:all .25s;position:relative;overflow:hidden}
+.company-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--g500),var(--g300));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.company-card:hover{border-color:var(--g200);box-shadow:var(--sh3);transform:translateY(-2px)}
+.company-card:hover::before{transform:scaleX(1)}
+.cc-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.cc-logo{width:52px;height:52px;border-radius:var(--r2);background:var(--g50);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;border:1px solid var(--g100)}
+.cc-name{font-size:.98rem;font-weight:800;color:var(--n900);letter-spacing:-.02em;line-height:1.2}
+.cc-type{font-size:.72rem;color:var(--n500);margin-top:2px}
+.cc-verified{display:inline-flex;align-items:center;gap:4px;font-size:.68rem;font-weight:700;color:var(--g700);background:var(--g50);border:1px solid var(--g200);border-radius:99px;padding:3px 8px;margin-top:4px}
+.cc-crops{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cc-crop-tag{padding:4px 10px;background:var(--n50);border:1px solid var(--n200);border-radius:99px;font-size:.7rem;font-weight:600;color:var(--n700)}
+.cc-meta{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;padding:12px;background:var(--n50);border-radius:var(--r2)}
+.cc-m-item{display:flex;flex-direction:column;gap:2px}
+.cc-m-label{font-size:.64rem;color:var(--n400);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.cc-m-val{font-size:.82rem;font-weight:700;color:var(--n800)}
+.cc-price-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:99px;font-size:.8rem;font-weight:700;background:var(--g50);color:var(--g700);border:1px solid var(--g200);margin-bottom:14px}
+.cc-price-tag .up{color:var(--g600)}
+.cc-actions{display:flex;gap:8px}
+.cc-btn-primary{flex:1;padding:10px;border-radius:var(--r2);background:var(--g600);color:#fff;font-size:.82rem;font-weight:700;transition:all .2s;text-align:center}
+.cc-btn-primary:hover{background:var(--g700)}
+.cc-btn-sec{padding:10px 14px;border-radius:var(--r2);border:1.5px solid var(--n200);color:var(--n700);font-size:.82rem;font-weight:600;transition:all .2s}
+.cc-btn-sec:hover{border-color:var(--g300);color:var(--g700)}
+
+/* Negotiation modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.65);backdrop-filter:blur(6px);z-index:800;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal-box{background:#fff;border-radius:var(--r4);padding:36px;max-width:520px;width:100%;box-shadow:0 32px 80px rgba(0,0,0,.2);animation:su .35s cubic-bezier(.16,1,.3,1)}
+.modal-title{font-size:1.2rem;font-weight:800;color:var(--n900);letter-spacing:-.03em;margin-bottom:6px}
+.modal-sub{font-size:.86rem;color:var(--n500);margin-bottom:24px}
+.modal-company-strip{display:flex;align-items:center;gap:12px;padding:14px;background:var(--g50);border:1px solid var(--g200);border-radius:var(--r2);margin-bottom:22px}
+.mcs-logo{width:42px;height:42px;border-radius:var(--r);background:#fff;display:flex;align-items:center;justify-content:center;font-size:1.4rem;border:1px solid var(--g200)}
+.mcs-name{font-size:.92rem;font-weight:800;color:var(--n900)}
+.mcs-offer{font-size:.78rem;color:var(--g600);font-weight:600}
+.modal-fields{display:flex;flex-direction:column;gap:14px;margin-bottom:20px}
+.mf-label{font-size:.75rem;font-weight:700;color:var(--n700);margin-bottom:5px;display:block}
+.mf-input{width:100%;padding:10px 14px;border-radius:var(--r2);border:1.5px solid var(--n200);font-size:.9rem;color:var(--n900);background:var(--n50);font-family:inherit;outline:none;transition:border-color .2s}
+.mf-input:focus{border-color:var(--g400);background:#fff}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-note{font-size:.78rem;color:var(--n500);background:var(--n50);border-radius:var(--r);padding:10px 12px;margin-bottom:20px;line-height:1.6}
+.modal-actions{display:flex;gap:10px}
+.modal-submit{flex:1;padding:13px;border-radius:var(--r2);background:var(--g600);color:#fff;font-size:.9rem;font-weight:700;transition:all .2s}
+.modal-submit:hover{background:var(--g700)}
+.modal-cancel{padding:13px 20px;border-radius:var(--r2);border:1.5px solid var(--n200);color:var(--n700);font-size:.9rem;font-weight:600;transition:all .2s}
+.modal-cancel:hover{border-color:var(--n300)}
+
+/* Farmer deal feed */
+.deal-feed{display:flex;flex-direction:column;gap:12px}
+.deal-item{display:flex;align-items:center;gap:14px;padding:14px 18px;background:#fff;border:1.5px solid var(--n200);border-radius:var(--r2);transition:all .2s}
+.deal-item:hover{border-color:var(--g200);box-shadow:var(--sh2)}
+.deal-farmer-av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--g400),var(--g700));display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.deal-info{flex:1}
+.deal-name{font-size:.88rem;font-weight:700;color:var(--n900)}
+.deal-detail{font-size:.75rem;color:var(--n500);margin-top:2px}
+.deal-price{text-align:right}
+.deal-amount{font-size:1rem;font-weight:800;color:var(--g600);letter-spacing:-.02em}
+.deal-status{font-size:.68rem;padding:3px 9px;border-radius:99px;font-weight:700;margin-top:3px;display:inline-block}
+.deal-status.done{background:var(--g50);color:var(--g700);border:1px solid var(--g200)}
+.deal-status.pend{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+
+/* ── MULTILINGUAL AGRIBOT ───────────────────────────── */
+.lang-selector-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;background:var(--n50);border-bottom:1px solid var(--n200);border-radius:var(--r2) var(--r2) 0 0}
+.lang-btn{padding:5px 12px;border-radius:99px;font-size:.72rem;font-weight:700;border:1.5px solid var(--n200);color:var(--n600);transition:all .18s;white-space:nowrap}
+.lang-btn.act{background:var(--g600);border-color:var(--g600);color:#fff;box-shadow:0 2px 8px rgba(22,163,74,.25)}
+.lang-lbl{font-size:.7rem;font-weight:700;color:var(--n400);text-transform:uppercase;letter-spacing:.1em;margin-right:4px}
+
+/* Voice button */
+.voice-btn{width:34px;height:34px;border-radius:50%;background:var(--g50);border:1.5px solid var(--g200);display:flex;align-items:center;justify-content:center;color:var(--g600);transition:all .2s;flex-shrink:0}
+.voice-btn:hover{background:var(--g100)}
+.voice-btn.listening{background:var(--g600);border-color:var(--g700);color:#fff;animation:vpulse 1s ease-in-out infinite}
+@keyframes vpulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.5)}50%{box-shadow:0 0 0 8px rgba(34,197,94,0)}}
+
+/* Translate badge on messages */
+.msg-translate{font-size:.68rem;color:var(--g600);cursor:pointer;margin-top:5px;display:inline-flex;align-items:center;gap:4px;font-weight:600;opacity:.7;transition:opacity .18s}
+.msg-translate:hover{opacity:1}
+
+/* Language floating pill */
+.lang-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.25);font-size:.7rem;font-weight:700;color:var(--g700);margin-bottom:6px}
+
+.cur{position:fixed;top:0;left:0;pointer-events:none;z-index:9999;will-change:transform}
+.cur-leaf{width:28px;height:28px;transform:translate(-50%,-50%) rotate(-35deg);transition:transform .08s linear;filter:drop-shadow(0 2px 6px rgba(22,163,74,.5))}
+.cur-leaf svg{width:100%;height:100%}
+.cur-trail{width:10px;height:10px;border-radius:50%;background:rgba(74,222,128,.55);transform:translate(-50%,-50%);transition:all .22s cubic-bezier(.16,1,.3,1);backdrop-filter:blur(2px)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;display:flex;align-items:center;padding:0 5%;background:rgba(255,255,255,.92);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(226,232,240,.7);transition:box-shadow .3s}
+nav.scrolled{box-shadow:var(--sh2)}
+.nav-in{max-width:1200px;margin:0 auto;width:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ic{width:34px;height:34px;background:linear-gradient(135deg,var(--g500),var(--g700));border-radius:var(--r2);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(34,197,94,.3)}
+.logo-nm{font-size:1.15rem;font-weight:800;letter-spacing:-.04em;color:var(--n900)}
+.logo-nm span{color:var(--g600)}
+.nav-links{display:flex;align-items:center;gap:2px}
+.nl{padding:8px 14px;border-radius:var(--r);font-size:.85rem;font-weight:500;color:var(--n600);transition:all .18s}
+.nl:hover{background:var(--n50);color:var(--n900)}
+.nl.act{color:var(--g600);font-weight:600}
+.nav-end{display:flex;align-items:center;gap:10px}
+.btn-ghost{padding:9px 18px;border-radius:var(--r2);border:1.5px solid var(--n200);color:var(--n700);font-size:.85rem;font-weight:600;transition:all .2s}
+.btn-ghost:hover{border-color:var(--g300);color:var(--g700);background:var(--g50)}
+.btn-cta{padding:9px 20px;border-radius:var(--r2);background:var(--g600);color:#fff;font-size:.85rem;font-weight:700;transition:all .22s;box-shadow:0 2px 8px rgba(34,197,94,.3);display:inline-flex;align-items:center;gap:7px}
+.btn-cta:hover{background:var(--g700);transform:translateY(-1px);box-shadow:var(--shg)}
+
+/* HERO — full screen background like Cropin */
+#hero{position:relative;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;padding:0}
+.hero-bg{display:none}
+/* Full bleed photo */
+.hero-photo-bg{position:absolute;inset:0;z-index:0}
+.hero-photo-bg img{width:100%;height:100%;object-fit:cover;object-position:center}
+/* Dark overlay gradient — heavier at center/bottom for text legibility */
+.hero-photo-bg::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35) 0%,rgba(0,0,0,.55) 40%,rgba(0,0,0,.65) 100%)}
+/* Slider track */
+.hero-slides-wrap{position:absolute;inset:0;z-index:0}
+.hero-slide-item{position:absolute;inset:0;opacity:0;transition:opacity 1.2s ease}
+.hero-slide-item.act{opacity:1}
+.hero-slide-item img{width:100%;height:100%;object-fit:cover;object-position:center;transform:scale(1.04);transition:transform 8s ease}
+.hero-slide-item.act img{transform:scale(1)}
+.hero-slide-item::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.3) 0%,rgba(0,0,0,.52) 45%,rgba(0,0,0,.72) 100%)}
+/* Floating crop card bubbles — like Cropin */
+.hero-bubble{position:absolute;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-radius:16px;padding:16px 20px;box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:3;display:flex;align-items:center;gap:12px;animation:float 6s ease-in-out infinite}
+.hero-bubble-left{left:4%;top:38%;animation-delay:0s}
+.hero-bubble-right{right:4%;top:30%;animation-delay:2s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.hbub-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.hbub-title{font-size:.78rem;font-weight:800;color:var(--n900);letter-spacing:-.01em}
+.hbub-val{font-size:1.1rem;font-weight:800;color:var(--g600);letter-spacing:-.03em;line-height:1}
+.hbub-sub{font-size:.66rem;color:var(--n500);margin-top:1px}
+/* Schedule demo tab — right side like Cropin */
+.hero-schedule-tab{position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:4;background:var(--g500);color:#fff;writing-mode:vertical-rl;text-orientation:mixed;padding:18px 10px;font-size:.8rem;font-weight:700;letter-spacing:.06em;cursor:none;transition:background .2s;border-radius:10px 0 0 10px;box-shadow:-4px 0 16px rgba(34,197,94,.3)}
+.hero-schedule-tab:hover{background:var(--g600)}
+/* Slider arrows */
+.hero-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:4;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem;transition:all .2s}
+.hero-arrow:hover{background:rgba(255,255,255,.3)}
+.hero-arrow-l{left:24px}
+.hero-arrow-r{right:60px}
+/* Hero content — center overlay */
+.hero-content{position:relative;z-index:3;text-align:center;padding:64px 8% 80px;max-width:1000px;margin:0 auto}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:99px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.28);font-size:.73rem;font-weight:700;color:rgba(255,255,255,.9);letter-spacing:.1em;text-transform:uppercase;margin-bottom:24px;backdrop-filter:blur(8px)}
+.ey-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pdot 2s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.hero-h1{font-size:clamp(2.4rem,5vw,4.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.04;color:#fff;margin-bottom:22px;text-shadow:0 2px 24px rgba(0,0,0,.4)}
+.hero-h1 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:#86efac;display:block}
+.hero-desc{font-size:1.08rem;line-height:1.74;color:rgba(255,255,255,.78);margin-bottom:36px;max-width:680px;margin-left:auto;margin-right:auto;text-shadow:0 1px 8px rgba(0,0,0,.3)}
+.hero-acts{display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.btn-p{padding:15px 32px;border-radius:99px;background:var(--g500);color:#fff;font-size:.96rem;font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 24px rgba(34,197,94,.45);transition:all .22s}
+.btn-p:hover{background:var(--g600);transform:translateY(-2px);box-shadow:0 8px 32px rgba(34,197,94,.5)}
+.btn-o{padding:15px 28px;border-radius:99px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);color:#fff;font-size:.96rem;font-weight:600;backdrop-filter:blur(10px);display:inline-flex;align-items:center;gap:8px;transition:all .2s}
+.btn-o:hover{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.5)}
+/* Slider dots */
+.hero-dots{display:flex;align-items:center;justify-content:center;gap:8px}
+.hero-dot{width:28px;height:4px;border-radius:99px;background:rgba(255,255,255,.35);transition:all .3s;cursor:none}
+.hero-dot.act{background:var(--g400);width:36px}
+/* Hero social proof strip */
+.hero-proof{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:28px}
+.hp-avs{display:flex}
+.hp-av{width:34px;height:34px;border-radius:50%;border:2px solid rgba(255,255,255,.6);margin-left:-8px;background:var(--g700);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff;font-weight:700}
+.hp-av:first-child{margin-left:0}
+.hp-txt{font-size:.84rem;color:rgba(255,255,255,.75)}
+.hp-txt strong{color:#fff}
+/* ── btn-p / btn-o outside hero (rest of site) ── */
+.btn-p{padding:14px 28px;border-radius:99px;background:var(--g600);color:#fff;font-size:.9rem;font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:var(--shg);transition:all .22s}
+.btn-p:hover{background:var(--g700);transform:translateY(-2px);box-shadow:0 12px 32px rgba(34,197,94,.35)}
+.btn-o{padding:14px 24px;border-radius:99px;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.35);color:#fff;font-size:.9rem;font-weight:600;display:inline-flex;align-items:center;gap:8px;transition:all .2s;backdrop-filter:blur(10px)}
+.btn-o:hover{background:rgba(255,255,255,.28);border-color:rgba(255,255,255,.5)}
+.hp-avs{display:flex}
+.hp-av{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.5);margin-left:-8px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:.85rem}
+.hp-av:first-child{margin-left:0}
+.hp-txt{font-size:.84rem;color:rgba(255,255,255,.75)}
+.hp-txt strong{color:#fff}
+.hp-txt strong{color:var(--n800)}
+.hero-right{position:relative;display:flex;flex-direction:column;gap:14px;padding:40px 0}
+.hero-main-img{border-radius:var(--r5);overflow:hidden;box-shadow:var(--sh4);height:340px;position:relative}
+.hero-main-img img{width:100%;height:100%;object-fit:cover}
+.hero-main-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.3),transparent 40%)}
+.hero-cap{position:absolute;bottom:16px;left:16px;right:16px;z-index:2}
+.live-badge{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:99px;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);font-size:.78rem;font-weight:700;color:var(--n800);box-shadow:var(--sh2);border:1px solid rgba(255,255,255,.6)}
+.ldot{width:7px;height:7px;border-radius:50%;background:var(--g500);box-shadow:0 0 0 3px rgba(34,197,94,.2);animation:lp 2s ease-in-out infinite}
+@keyframes lp{0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.2)}50%{box-shadow:0 0 0 6px rgba(34,197,94,.08)}}
+.hero-mcards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.hmc{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r3);padding:14px;box-shadow:var(--sh1);transition:all .22s;display:flex;align-items:flex-start;gap:12px}
+.hmc:hover{border-color:var(--g200);box-shadow:var(--sh2);transform:translateY(-2px)}
+.hmc-ic{width:38px;height:38px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hmc-n{font-size:1.2rem;font-weight:800;letter-spacing:-.03em;color:var(--n900);line-height:1}
+.hmc-l{font-size:.7rem;font-weight:500;color:var(--n400);margin-top:2px}
+.hmc-c{font-size:.72rem;font-weight:700}
+
+/* SECTION */
+.sec{padding:96px 5%}
+.sec-in{max-width:1200px;margin:0 auto}
+.sec-lbl{display:inline-flex;align-items:center;gap:8px;padding:5px 13px;border-radius:99px;background:var(--g50);border:1px solid var(--g200);font-size:.7rem;font-weight:700;color:var(--g700);letter-spacing:.09em;text-transform:uppercase;margin-bottom:16px}
+.sec-h2{font-size:clamp(2rem,3.5vw,3rem);font-weight:800;letter-spacing:-.04em;line-height:1.1;color:var(--n900)}
+.sec-h2 em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:var(--g600)}
+.sec-sub{margin-top:14px;font-size:1rem;line-height:1.74;color:var(--n500);max-width:540px}
+.divider{height:1px;background:var(--n200)}
+
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:56px}
+.fc{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r4);padding:28px;transition:all .28s;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--g400),var(--g600));transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.fc:hover{transform:translateY(-4px);box-shadow:var(--sh3);border-color:var(--g200)}
+.fc:hover::before{transform:scaleX(1)}
+.fc-icon{width:52px;height:52px;border-radius:var(--r3);display:flex;align-items:center;justify-content:center;margin-bottom:18px}
+.fc-title{font-size:1.05rem;font-weight:700;letter-spacing:-.02em;color:var(--n900);margin-bottom:8px}
+.fc-desc{font-size:.88rem;line-height:1.7;color:var(--n500);margin-bottom:16px}
+.fc-lnk{display:inline-flex;align-items:center;gap:5px;font-size:.82rem;font-weight:600;color:var(--g600);transition:gap .18s}
+.fc-lnk:hover{gap:9px}
+
+/* HOW */
+.how-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.how-steps{display:flex;flex-direction:column;gap:0}
+.hstep{display:flex;gap:20px;padding:24px 0;border-bottom:1px solid var(--n100);cursor:none}
+.hstep:last-child{border-bottom:none}
+.hstep-num{width:36px;height:36px;border-radius:99px;background:var(--g50);border:1.5px solid var(--g200);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:800;color:var(--g700);flex-shrink:0;transition:all .22s}
+.hstep:hover .hstep-num{background:var(--g600);border-color:var(--g600);color:#fff;box-shadow:0 4px 12px rgba(34,197,94,.3)}
+.hstep-t{font-size:.95rem;font-weight:700;color:var(--n800);margin-bottom:5px}
+.hstep-d{font-size:.85rem;line-height:1.65;color:var(--n500)}
+.how-visual{border-radius:var(--r5);overflow:hidden;box-shadow:var(--sh4);height:480px}
+.how-visual img{width:100%;height:100%;object-fit:cover}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:48px}
+.st-item{text-align:center}
+.st-n{font-size:3rem;font-weight:800;letter-spacing:-.06em;color:#fff;line-height:1}
+.st-l{font-size:.82rem;color:rgba(255,255,255,.6);margin-top:6px;font-weight:500;text-transform:uppercase;letter-spacing:.08em}
+
+/* MODULES */
+.mod-tabs{display:flex;gap:4px;background:#fff;border:1.5px solid var(--n200);border-radius:var(--r3);padding:4px;width:fit-content;margin-bottom:40px;box-shadow:var(--sh1)}
+.mt{padding:9px 20px;border-radius:var(--r2);font-size:.84rem;font-weight:600;color:var(--n500);transition:all .2s}
+.mt.act,.mt:hover{background:var(--g600);color:#fff}
+.mpanel{display:none}
+.mpanel.act{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:start}
+.mpreview{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r4);overflow:hidden;box-shadow:var(--sh2)}
+.mprev-bar{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--n50);border-bottom:1px solid var(--n200)}
+.mprev-dot{width:10px;height:10px;border-radius:50%}
+.mprev-in{padding:24px}
+.minfo h3{font-size:1.5rem;font-weight:800;letter-spacing:-.04em;color:var(--n900);margin-bottom:12px}
+.minfo p{font-size:.9rem;line-height:1.72;color:var(--n500);margin-bottom:20px}
+.mfeats{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.mfeat{display:flex;align-items:center;gap:10px;font-size:.86rem;color:var(--n700)}
+.mfeat-chk{width:20px;height:20px;border-radius:99px;background:var(--g50);border:1.5px solid var(--g200);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.chart-area{height:120px;display:flex;align-items:flex-end;gap:4px;background:var(--n50);border-radius:var(--r2);padding:10px 10px 0;position:relative}
+.chart-area::before{content:'';position:absolute;top:10px;left:0;right:0;height:1px;background:var(--n200)}
+.chart-area::after{content:'';position:absolute;top:55%;left:0;right:0;height:1px;background:var(--n100)}
+
+/* LEVELS */
+.lvl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.lvl-card{border-radius:var(--r4);overflow:hidden;position:relative;box-shadow:var(--sh2);transition:all .3s}
+.lvl-card:hover{transform:translateY(-6px);box-shadow:var(--sh4)}
+.lvl-img{height:220px;overflow:hidden;position:relative}
+.lvl-img img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.lvl-card:hover .lvl-img img{transform:scale(1.06)}
+.lvl-img::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.72) 0%,transparent 55%)}
+.lvl-body{position:absolute;bottom:0;left:0;right:0;padding:20px}
+.lvl-tag{display:inline-flex;align-items:center;padding:4px 10px;border-radius:99px;font-size:.68rem;font-weight:700;margin-bottom:8px}
+.lvl-name{font-size:1.1rem;font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:5px}
+.lvl-desc{font-size:.8rem;color:rgba(255,255,255,.65);line-height:1.6}
+.lvl-feats{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.lvl-f{font-size:.76rem;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:6px}
+
+/* DISEASE */
+.dis-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+.upload-box{background:#fff;border:2px dashed var(--g300);border-radius:var(--r4);padding:40px 32px;text-align:center;cursor:none;transition:all .28s;position:relative;overflow:hidden}
+.upload-box::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(34,197,94,.07),transparent 60%);pointer-events:none}
+.upload-box:hover,.upload-box.drag{border-color:var(--g500);background:var(--g50);transform:scale(1.01)}
+.upload-box input{display:none}
+.up-icon{width:68px;height:68px;border-radius:var(--r4);background:var(--g50);border:1.5px solid var(--g200);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.dlib-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:24px}
+.dlib-card{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r3);padding:14px;transition:all .22s;cursor:none}
+.dlib-card:hover{border-color:var(--g200);transform:translateY(-2px);box-shadow:var(--sh2)}
+
+/* MARKET */
+.mkt-tbl{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r4);overflow:hidden;box-shadow:var(--sh1)}
+.mkt-thead{display:grid;grid-template-columns:2.5fr 1.2fr 1fr 1.2fr 1fr;gap:16px;padding:12px 20px;background:var(--n50);border-bottom:1.5px solid var(--n200);font-size:.74rem;font-weight:700;color:var(--n400);text-transform:uppercase;letter-spacing:.07em}
+.mkt-row{display:grid;grid-template-columns:2.5fr 1.2fr 1fr 1.2fr 1fr;gap:16px;padding:14px 20px;border-bottom:1px solid var(--n100);align-items:center;transition:background .15s}
+.mkt-row:last-child{border-bottom:none}
+.mkt-row:hover{background:var(--g50)}
+.mkt-crop{display:flex;align-items:center;gap:11px}
+.mkt-crop-ic{width:38px;height:38px;border-radius:var(--r2);background:var(--g50);border:1px solid var(--g100);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.mkt-nm{font-size:.9rem;font-weight:700;color:var(--n900)}
+.mkt-loc{font-size:.72rem;color:var(--n400);margin-top:1px}
+.mkt-pr{font-size:.95rem;font-weight:800;color:var(--n900);letter-spacing:-.02em}
+.mkt-ch{font-size:.8rem;font-weight:700}
+.mkt-rng{font-size:.78rem;color:var(--n400)}
+.up{color:#16a34a}.dn{color:#dc2626}
+.live-bar{display:flex;align-items:center;gap:8px;padding:9px 16px;background:var(--n50);border:1.5px solid var(--n200);border-radius:var(--r2);font-size:.82rem;font-weight:600;color:var(--n700)}
+.lpulse{width:8px;height:8px;border-radius:50%;background:var(--g500);box-shadow:0 0 0 3px rgba(34,197,94,.18);animation:lp 2s infinite;display:inline-block}
+
+/* CALENDAR */
+.cal-layout{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.cal-widget{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r4);overflow:hidden;box-shadow:var(--sh1)}
+.cal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--g50);border-bottom:1px solid var(--g100)}
+.cal-month{font-size:.95rem;font-weight:800;color:var(--n900);letter-spacing:-.03em}
+.cal-btn{width:30px;height:30px;border-radius:var(--r);background:#fff;border:1.5px solid var(--n200);display:flex;align-items:center;justify-content:center;font-size:.88rem;color:var(--n600);box-shadow:0 1px 2px rgba(0,0,0,.04);transition:all .18s}
+.cal-btn:hover{background:var(--g50);border-color:var(--g300);color:var(--g700)}
+.cal-wrap{padding:14px 16px}
+.cal-wd{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:6px}
+.cal-wdh{text-align:center;font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--n400);padding:4px}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cd{aspect-ratio:1;border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:.72rem;color:var(--n700);font-weight:500;transition:background .14s;position:relative;cursor:none}
+.cd:hover{background:var(--g50)}
+.cd.tod{background:var(--g500);color:#fff;font-weight:800;box-shadow:0 2px 8px rgba(34,197,94,.3);border-radius:var(--r2)}
+.cd.hev{background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r2)}
+.epip{width:4px;height:4px;border-radius:50%;background:var(--g500);position:absolute;bottom:3px}
+.ev-list{display:flex;flex-direction:column;gap:10px}
+.ev-item{display:flex;align-items:center;gap:14px;padding:13px 16px;background:#fff;border:1.5px solid var(--n200);border-radius:var(--r3);box-shadow:var(--sh1);transition:all .2s}
+.ev-item:hover{border-color:var(--g200);transform:translateX(4px)}
+.ev-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.ev-name{font-size:.88rem;font-weight:700;color:var(--n900)}
+.ev-date{font-size:.74rem;color:var(--n400);margin-top:2px}
+
+/* CHATBOT */
+.chat-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:64px;align-items:start}
+.cf{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.cf-ic{width:40px;height:40px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.cf-t{font-size:.9rem;font-weight:700;color:var(--n900);margin-bottom:3px}
+.cf-d{font-size:.82rem;color:var(--n500);line-height:1.6}
+.chat-widget{background:var(--n50);border:1.5px solid var(--n200);border-radius:var(--r5);overflow:hidden;box-shadow:var(--sh2)}
+.chat-top{display:flex;align-items:center;gap:12px;padding:15px 18px;background:#fff;border-bottom:1px solid var(--n200)}
+.chat-av{width:38px;height:38px;border-radius:var(--r2);background:linear-gradient(135deg,var(--g500),var(--g700));display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(34,197,94,.25)}
+.chat-nm{font-size:.9rem;font-weight:800;color:var(--n900)}
+.chat-st{font-size:.7rem;color:var(--g600);font-weight:600;display:flex;align-items:center;gap:5px}
+.chat-st::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--g500);display:inline-block;animation:pdot 2s infinite}
+.chat-body{padding:16px 18px;max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+.chat-body::-webkit-scrollbar{width:3px}
+.msg{display:flex;gap:9px;align-items:flex-start}
+.msg.user{flex-direction:row-reverse}
+.msg-av{width:28px;height:28px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.av-bot{background:linear-gradient(135deg,var(--g500),var(--g700))}
+.av-user{background:var(--g50);border:1.5px solid var(--g200)}
+.bubble{max-width:78%;padding:10px 14px;font-size:.85rem;line-height:1.58;white-space:pre-line}
+.b-bot{background:#fff;border:1px solid var(--n200);border-radius:4px 14px 14px 14px;color:var(--n800);box-shadow:var(--sh1)}
+.b-user{background:var(--g600);color:#fff;border-radius:14px 4px 14px 14px}
+.tdots{display:flex;gap:4px;align-items:center}
+.tdots span{width:5px;height:5px;border-radius:50%;background:var(--g400);animation:tda 1.2s infinite}
+.tdots span:nth-child(2){animation-delay:.2s}.tdots span:nth-child(3){animation-delay:.4s}
+@keyframes tda{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+.chat-sugs{padding:8px 18px;display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--n200);background:var(--n50)}
+.csug{padding:6px 14px;border-radius:99px;font-size:.76rem;font-weight:600;background:#fff;border:1.5px solid var(--n200);color:var(--n600);box-shadow:var(--sh1);transition:all .18s}
+.csug:hover{background:var(--g500);border-color:var(--g500);color:#fff;transform:scale(1.04)}
+.chat-in-bar{display:flex;gap:8px;padding:12px 18px;border-top:1px solid var(--n200);background:#fff}
+.chat-inp{flex:1;background:var(--n50);border:1.5px solid var(--n200);border-radius:99px;padding:10px 16px;font-size:.86rem;color:var(--n900);transition:all .2s}
+.chat-inp:focus{border-color:var(--g400);background:#fff;box-shadow:0 0 0 3px rgba(34,197,94,.1)}
+.chat-inp::placeholder{color:var(--n400)}
+.chat-send{background:var(--g600);border-radius:99px;padding:10px 20px;color:#fff;font-weight:700;font-size:.85rem;transition:all .2s;box-shadow:0 2px 8px rgba(34,197,94,.25);display:flex;align-items:center;gap:6px}
+.chat-send:hover{background:var(--g700);transform:scale(1.04)}
+
+/* SCHEMES */
+.sc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.sc{background:#fff;border:1.5px solid var(--n200);border-radius:var(--r4);padding:24px;transition:all .28s;box-shadow:var(--sh1)}
+.sc:hover{transform:translateY(-4px);box-shadow:var(--sh3);border-color:var(--g200)}
+.sc-icon{width:48px;height:48px;border-radius:var(--r3);background:var(--g50);border:1px solid var(--g100);display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.sc-n{font-size:.98rem;font-weight:800;color:var(--n900);letter-spacing:-.03em;margin-bottom:4px}
+.sc-cat{font-size:.7rem;font-weight:700;color:var(--g600);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+.sc-b{font-size:.84rem;line-height:1.65;color:var(--n600);margin-bottom:12px}
+.sc-el{display:flex;align-items:flex-start;gap:7px;font-size:.78rem;color:var(--n500);margin-bottom:14px}
+.sc-lk{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r2);color:var(--g700);font-size:.78rem;font-weight:700;transition:all .2s}
+.sc-lk:hover{background:var(--g100);border-color:var(--g400)}
+
+/* FOOTER */
+footer{background:var(--n900);padding:72px 5% 36px}
+.ft-in{max-width:1200px;margin:0 auto}
+.ft-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:48px;margin-bottom:48px}
+.ft-col h5{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.3);margin-bottom:14px}
+.ft-col a{display:block;font-size:.85rem;color:rgba(255,255,255,.5);margin-bottom:9px;transition:color .18s}
+.ft-col a:hover{color:var(--g400)}
+.ft-bot{border-top:1px solid rgba(255,255,255,.08);padding-top:24px;display:flex;justify-content:space-between;align-items:center}
+.ft-bot p{font-size:.78rem;color:rgba(255,255,255,.25)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:99px;font-size:.7rem;font-weight:700}
+.bg-g{background:var(--g50);color:var(--g700);border:1px solid var(--g200)}
+.bg-y{background:#fffbeb;color:#92400e;border:1px solid #fde68a}
+.bg-r{background:#fef2f2;color:#991b1b;border:1px solid #fecaca}
+.bg-o{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+
+/* FORMS */
+.flbl{display:block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--n500);margin-bottom:6px}
+.finp{width:100%;padding:10px 14px;background:#fff;border:1.5px solid var(--n200);border-radius:var(--r2);font-size:.88rem;color:var(--n900);transition:all .2s;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.finp:focus{border-color:var(--g400);box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+.finp option{background:#fff}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sbtn{padding:13px 28px;border-radius:var(--r3);background:var(--g600);color:#fff;font-size:.9rem;font-weight:700;width:100%;margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:var(--shg);transition:all .22s}
+.sbtn:hover{background:var(--g700);transform:translateY(-1px)}
+.sbtn:disabled{opacity:.5;transform:none;box-shadow:none;cursor:wait}
+.rbox{margin-top:16px;padding:18px;background:var(--g50);border:1.5px solid var(--g200);border-radius:var(--r3);display:none}
+.rbox.show{display:block;animation:su .35s cubic-bezier(.16,1,.3,1)}
+@keyframes su{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.rkv{display:flex;gap:10px;margin-bottom:8px;font-size:.85rem;align-items:flex-start}
+.rk{color:var(--n500);min-width:120px;flex-shrink:0;font-size:.78rem;font-weight:600}
+.rv{color:var(--n800);line-height:1.5;flex:1}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--g100);border-top-color:var(--g500);border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:800;padding:11px 20px;background:var(--n900);color:var(--g300);border-radius:99px;font-size:.8rem;font-weight:600;white-space:nowrap;box-shadow:0 8px 32px rgba(0,0,0,.25);display:none}
+.toast.show{display:block;animation:su .25s cubic-bezier(.16,1,.3,1)}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+@media(max-width:960px){
+  #hero{padding-top:0;min-height:100svh}
+  .hero-right{display:none}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .how-grid,.dis-grid,.chat-layout,.cal-layout{grid-template-columns:1fr}
+  .how-visual{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:32px}
+  .lvl-grid{grid-template-columns:1fr 1fr}
+  .sc-grid{grid-template-columns:1fr 1fr}
+  .ft-top{grid-template-columns:1fr 1fr;gap:28px}
+  .mkt-thead,.mkt-row{grid-template-columns:2fr 1fr 1fr}
+  .mkt-thead>*:nth-child(4),.mkt-thead>*:nth-child(5),.mkt-row>*:nth-child(4),.mkt-row>*:nth-child(5){display:none}
+  .nav-links{display:none}
+  .mpanel.act{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  .feat-grid,.lvl-grid,.sc-grid{grid-template-columns:1fr}
+  .ft-top{grid-template-columns:1fr}
+  .hero-mcards{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>\n
+<div class="cur" id="cur-d">
+  <div class="cur-leaf">
+    <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M6 26 C6 26 8 14 18 8 C24 5 28 6 28 6 C28 6 28 10 24 16 C18 24 6 26 6 26Z" fill="#16a34a" stroke="#14532d" stroke-width="1.2"/>
+      <path d="M6 26 C10 20 16 16 24 10" stroke="#86efac" stroke-width="1" stroke-linecap="round"/>
+      <path d="M6 26 L8 32" stroke="#15803d" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </div>
+</div>
+<div class="cur" id="cur-r"><div class="cur-trail"></div></div>
+<div class="toast" id="toast"></div>
+<div class="hero-bg"></div>
+
+<nav id="mainnav">
+  <div class="nav-in">
+    <a href="#" class="logo">
+      <div class="logo-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.68 19 2c1 2 2 4.5 2 7A7 7 0 0 1 11 20z'/><path d='M7 20a1 1 0 0 0 4 0c0-3-1-7-4-11'/></svg></div>
+      <div class="logo-nm">Agri<span>Sense</span></div>
+    </a>
+    <div class="nav-links">
+      <a href="#features" class="nl">Features</a>
+      <a href="#modules" class="nl">Platform</a>
+      <a href="#market" class="nl">Live Market</a>
+      <a href="#disease" class="nl">Disease AI</a>
+      <a href="#direct-market" class="nl">Direct Market</a>
+      <a href="#chatbot" class="nl">AgriBot</a>
+      <a href="#schemes" class="nl">Schemes</a>
+    </div>
+    <div class="nav-end">
+      <button class="btn-ghost" onclick="document.getElementById('market').scrollIntoView({behavior:'smooth'})">Live Prices</button>
+      <a href="login.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Login</a>
+      <button class="btn-cta" onclick="document.getElementById('chatbot').scrollIntoView({behavior:'smooth'})">Talk to AgriBot <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg></button>
+    </div>
+  </div>
+</nav>
+
+<section id="hero">
+
+  <!-- Full-screen background slides -->
+  <div class="hero-slides-wrap">
+    <div class="hero-slide-item act">
+      <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=90&fit=crop" alt="Aerial farm fields">
+    </div>
+    <div class="hero-slide-item">
+      <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=1920&q=90&fit=crop" alt="Smart farming">
+    </div>
+    <div class="hero-slide-item">
+      <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=1920&q=90&fit=crop" alt="Crop fields">
+    </div>
+    <div class="hero-slide-item">
+      <img src="https://images.unsplash.com/photo-1592982537447-7440770cbfc9?w=1920&q=90&fit=crop" alt="Paddy fields">
+    </div>
+  </div>
+
+  <!-- Right-edge "Talk to AgriBot" tab (like Cropin's "Schedule a demo") -->
+  <button class="hero-schedule-tab" onclick="document.getElementById('chatbot').scrollIntoView({behavior:'smooth'})">Talk to AgriBot</button>
+
+  <!-- Prev / Next arrows -->
+  <button class="hero-arrow hero-arrow-l" onclick="moveHeroSlide(-1)">←</button>
+  <button class="hero-arrow hero-arrow-r" onclick="moveHeroSlide(1)">→</button>
+
+  <!-- Centre content overlay -->
+  <div class="hero-content">
+    <div class="hero-eyebrow"><div class="ey-dot"></div>AI-Powered Smart Agriculture</div>
+    <h1 class="hero-h1">
+      Farming for the future needs a
+      <em>whole new kind of power</em>
+    </h1>
+    <p class="hero-desc">AgriSense brings AI-powered crop intelligence, live mandi prices, disease detection, and a 24/7 farming assistant — built for every Indian farmer, from beginners to experts.</p>
+    <div class="hero-proof">
+      <div class="hp-avs"><div class="hp-av">🌾</div><div class="hp-av">👨‍🌾</div><div class="hp-av">🌱</div><div class="hp-av">🚜</div></div>
+      <div class="hp-txt">Trusted by <strong>farmers across India</strong> — from small holdings to large farms</div>
+    </div>
+    <div class="hero-acts">
+      <button class="btn-p" onclick="document.getElementById('modules').scrollIntoView({behavior:'smooth'})">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg>
+        Explore Platform
+      </button>
+      <button class="btn-o" onclick="document.getElementById('chatbot').scrollIntoView({behavior:'smooth'})">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x='3' y='8' width='18' height='13' rx='2'/><path d='M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5'/><circle cx='9' cy='14' r='1'/><circle cx='15' cy='14' r='1'/><path d='M9 17h6'/></svg>
+        Talk to AgriBot
+      </button>
+    </div>
+    <!-- Slide dots -->
+    <div class="hero-dots">
+      <div class="hero-dot act"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+    </div>
+  </div>
+
+</section>
+
+<div class="divider"></div>
+
+<section class="sec" id="features" style="background:var(--n50)">
+<div class="sec-in">
+  <div class="reveal" style="text-align:center;max-width:560px;margin:0 auto 56px">
+    <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg> Platform Features</div>
+    <h2 class="sec-h2">Everything a farmer needs,<br><em>powered by AI</em></h2>
+    <p class="sec-sub" style="margin:14px auto 0">Six integrated modules working together to bring intelligence to every step of the farming journey.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="fc reveal">
+      <div class="fc-icon" style="background:#fff7ed"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='22 7 13.5 15.5 8.5 10.5 2 17'/><polyline points='16 7 22 7 22 13'/></svg></div>
+      <div class="fc-title">Price Prediction</div>
+      <div class="fc-desc">Our ML model forecasts crop prices 7–30 days ahead using historical mandi data, seasonal trends, and supply-demand patterns.</div>
+      <a href="#modules" class="fc-lnk">Explore module <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg></a>
+    </div>
+    <div class="fc reveal d1">
+      <div class="fc-icon" style="background:var(--g50)"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.68 19 2c1 2 2 4.5 2 7A7 7 0 0 1 11 20z'/><path d='M7 20a1 1 0 0 0 4 0c0-3-1-7-4-11'/></svg></div>
+      <div class="fc-title">Crop Advisor</div>
+      <div class="fc-desc">Input soil N-P-K values, weather conditions, and season. Our Random Forest model recommends the best crops with confidence scores.</div>
+      <a href="#modules" class="fc-lnk">Explore module <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg></a>
+    </div>
+    <div class="fc reveal d2">
+      <div class="fc-icon" style="background:#fef2f2"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M6 18h8'/><path d='M3 22h18'/><path d='M14 22a7 7 0 1 0 0-14h-1'/><path d='M9 14h2'/><path d='M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2z'/><path d='M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3'/></svg></div>
+      <div class="fc-title">Disease Detection</div>
+      <div class="fc-desc">Upload a leaf photo. Computer vision analyses colour, texture, and spot patterns to identify diseases with 95%+ accuracy and prescribes treatment.</div>
+      <a href="#disease" class="fc-lnk">Try it now <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg></a>
+    </div>
+    <div class="fc reveal">
+      <div class="fc-icon" style="background:#eff6ff"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg></div>
+      <div class="fc-title">Live Market Prices</div>
+      <div class="fc-desc">Real-time mandi prices from across India. Compare local vs national prices, track daily trends, and find the best market to sell your produce.</div>
+      <a href="#market" class="fc-lnk">View live prices <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg></a>
+    </div>
+    <div class="fc reveal d1">
+      <div class="fc-icon" style="background:var(--g50)"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg></div>
+      <div class="fc-title">Agricultural Calendar</div>
+      <div class="fc-desc">Personalised sowing, irrigation, fertilisation, and harvest schedule for your specific crop — with smart reminders at every critical stage.</div>
+      <a href="#calendar" class="fc-lnk">View calendar <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg></a>
+    </div>
+    <div class="fc reveal d2">
+      <div class="fc-icon" style="background:#faf5ff"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='3' y='8' width='18' height='13' rx='2'/><path d='M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5'/><circle cx='9' cy='14' r='1'/><circle cx='15' cy='14' r='1'/><path d='M9 17h6'/></svg></div>
+      <div class="fc-title">AgriBot Assistant</div>
+      <div class="fc-desc">Ask anything in plain language. From basic farming questions to advanced agronomics — AgriBot adapts to your knowledge and gives actionable advice.</div>
+      <a href="#chatbot" class="fc-lnk">Chat now <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg></a>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<section class="sec" id="how">
+<div class="sec-in">
+  <div class="how-grid">
+    <div class="reveal">
+      <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='4' y='4' width='16' height='16' rx='2'/><rect x='9' y='9' width='6' height='6'/><line x1='9' y1='1' x2='9' y2='4'/><line x1='15' y1='1' x2='15' y2='4'/><line x1='9' y1='20' x2='9' y2='23'/><line x1='15' y1='20' x2='15' y2='23'/><line x1='20' y1='9' x2='23' y2='9'/><line x1='20' y1='14' x2='23' y2='14'/><line x1='1' y1='9' x2='4' y2='9'/><line x1='1' y1='14' x2='4' y2='14'/></svg> How It Works</div>
+      <h2 class="sec-h2">From soil to sale —<br><em>AI guided</em></h2>
+      <p class="sec-sub" style="margin-bottom:36px">A simple workflow that transforms raw farm data into actionable insights in seconds.</p>
+      <div class="how-steps">
+        <div class="hstep"><div class="hstep-num">01</div><div><div class="hstep-t">Enter your location &amp; crop</div><div class="hstep-d">Tell AgriSense your district, season, and crop. Optionally add soil N-P-K values for better AI recommendations.</div></div></div>
+        <div class="hstep"><div class="hstep-num">02</div><div><div class="hstep-t">AI analyses live data</div><div class="hstep-d">Our models pull weather data, mandi prices, soil benchmarks, and 10 years of historical patterns in real time.</div></div></div>
+        <div class="hstep"><div class="hstep-num">03</div><div><div class="hstep-t">Get personalised recommendations</div><div class="hstep-d">Receive tailored crop schedules, price forecasts, disease alerts, and market advice — specific to your location.</div></div></div>
+        <div class="hstep"><div class="hstep-num">04</div><div><div class="hstep-t">Act &amp; earn more</div><div class="hstep-d">Follow AI-guided actions to improve yield, prevent crop losses, and sell at peak prices. Track results over seasons.</div></div></div>
+      </div>
+    </div>
+    <div class="how-visual reveal d2">
+      <img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=800&q=85&fit=crop" alt="How AgriSense works">
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="sec" id="stats" style="background:linear-gradient(135deg,#15803d,#14532d);padding:72px 5%">
+<div class="sec-in">
+  <div class="stats-grid">
+    <div class="st-item reveal"><div class="st-n" data-t="10" data-s="+">0+</div><div class="st-l">Crop varieties covered</div></div>
+    <div class="st-item reveal d1"><div class="st-n" data-t="95" data-s="%">0%</div><div class="st-l">Disease detection accuracy</div></div>
+    <div class="st-item reveal d2"><div class="st-n" data-t="9" data-s="">0</div><div class="st-l">Disease categories</div></div>
+    <div class="st-item reveal d3"><div class="st-n" data-t="7" data-s="">0</div><div class="st-l">AI-powered modules</div></div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<section class="sec" id="modules" style="background:var(--n50)">
+<div class="sec-in">
+  <div class="reveal" style="margin-bottom:40px">
+    <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='4' y='4' width='16' height='16' rx='2'/><rect x='9' y='9' width='6' height='6'/><line x1='9' y1='1' x2='9' y2='4'/><line x1='15' y1='1' x2='15' y2='4'/><line x1='9' y1='20' x2='9' y2='23'/><line x1='15' y1='20' x2='15' y2='23'/><line x1='20' y1='9' x2='23' y2='9'/><line x1='20' y1='14' x2='23' y2='14'/><line x1='1' y1='9' x2='4' y2='9'/><line x1='1' y1='14' x2='4' y2='14'/></svg> Interactive Platform</div>
+    <h2 class="sec-h2">Try the platform <em>live</em></h2>
+    <p class="sec-sub">The Flask demo uses sample market data and rule-based estimates. Connect live data sources or trained models for production predictions.</p>
+  </div>
+  <div class="mod-tabs reveal">
+    <button class="mt act" onclick="switchMod('crops',this)">Crop Advisor</button>
+    <button class="mt" onclick="switchMod('price',this)">Price Forecast</button>
+    <button class="mt" onclick="switchMod('calendar',this)">Ag Calendar</button>
+  </div>
+
+  <div class="mpanel act" id="mod-crops">
+    <div class="mpreview reveal">
+      <div class="mprev-bar"><div class="mprev-dot" style="background:#ef4444"></div><div class="mprev-dot" style="background:#f59e0b;margin-left:5px"></div><div class="mprev-dot" style="background:#22c55e;margin-left:5px"></div><span style="font-size:.74rem;color:var(--n400);margin-left:12px">AgriSense — Crop Advisor</span></div>
+      <div class="mprev-in">
+        <div class="g2" style="margin-bottom:12px">
+          <div><label class="flbl">Season</label><select id="c-season" class="finp"><option value="kharif">Kharif (Jun–Nov)</option><option value="rabi">Rabi (Oct–Mar)</option><option value="zaid">Zaid (Mar–Jun)</option></select></div>
+          <div><label class="flbl">Temperature °C</label><input id="c-temp" class="finp" type="number" value="26"></div>
+          <div><label class="flbl">Nitrogen N</label><input id="c-n" class="finp" type="number" value="80"></div>
+          <div><label class="flbl">Phosphorus P</label><input id="c-p" class="finp" type="number" value="50"></div>
+          <div><label class="flbl">Potassium K</label><input id="c-k" class="finp" type="number" value="60"></div>
+          <div><label class="flbl">Humidity %</label><input id="c-hum" class="finp" type="number" value="65"></div>
+          <div><label class="flbl">Soil pH</label><input id="c-ph" class="finp" type="number" value="6.5" step="0.1"></div>
+          <div><label class="flbl">Rainfall mm</label><input id="c-rain" class="finp" type="number" value="120"></div>
+        </div>
+        <button class="sbtn" onclick="getCropRec()" id="crop-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg> Get AI Recommendations</button>
+        <div class="rbox" id="crop-res"></div>
+      </div>
+    </div>
+    <div class="minfo reveal d1">
+      <h3>AI Crop Advisor</h3>
+      <p>Our machine learning model analyses soil parameters, weather conditions, and seasonal data to recommend the most suitable crops with confidence scores and yield estimates.</p>
+      <div class="mfeats">
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Trained on Indian agricultural data</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Season-aware recommendations</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Yield estimates per hectare</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Variety recommendations included</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>95.9% classifier accuracy</div>
+      </div>
+      <button class="btn-p" style="width:auto" onclick="document.getElementById('crop-btn').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/></svg> Run Live Prediction</button>
+    </div>
+  </div>
+
+  <div class="mpanel" id="mod-price">
+    <div class="mpreview reveal">
+      <div class="mprev-bar"><div class="mprev-dot" style="background:#ef4444"></div><div class="mprev-dot" style="background:#f59e0b;margin-left:5px"></div><div class="mprev-dot" style="background:#22c55e;margin-left:5px"></div><span style="font-size:.74rem;color:var(--n400);margin-left:12px">AgriSense — Price Forecast</span></div>
+      <div class="mprev-in">
+        <div class="g3" style="margin-bottom:14px">
+          <div><label class="flbl">Crop</label><select id="p-crop" class="finp"><option>Tomato</option><option>Onion</option><option>Potato</option><option>Rice</option><option>Wheat</option><option>Maize</option><option>Cotton</option><option>Soybean</option><option>Groundnut</option><option>Sugarcane</option></select></div>
+          <div><label class="flbl">Month</label><select id="p-month" class="finp"><option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option><option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option><option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option><option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option></select></div>
+          <div><label class="flbl">Days Ahead</label><select id="p-days" class="finp"><option value="7">7 Days</option><option value="14">14 Days</option><option value="30">30 Days</option></select></div>
+          <div><label class="flbl">Rainfall mm</label><input id="p-rain" class="finp" type="number" value="150"></div>
+          <div><label class="flbl">Temperature °C</label><input id="p-temp" class="finp" type="number" value="28"></div>
+        </div>
+        <button class="sbtn" onclick="getPriceFC()" id="price-btn"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='22 7 13.5 15.5 8.5 10.5 2 17'/><polyline points='16 7 22 7 22 13'/></svg> Run Forecast</button>
+        <div id="price-chart-box" style="margin-top:14px;display:none">
+          <div style="font-size:.8rem;font-weight:700;color:var(--n700);margin-bottom:8px" id="chart-lbl">Price Forecast — ₹/quintal</div>
+          <div class="chart-area" id="price-chart"></div>
+          <div style="margin-top:8px;display:flex;gap:7px;flex-wrap:wrap" id="price-badges"></div>
+        </div>
+        <div class="rbox" id="price-res"></div>
+      </div>
+    </div>
+    <div class="minfo reveal d1">
+      <h3>Price Prediction</h3>
+      <p>Our Gradient Boosting model forecasts mandi prices up to 30 days ahead, helping you decide exactly when to sell for maximum profit at minimum risk.</p>
+      <div class="mfeats">
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Gradient Boosting Regressor model</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Trained on AGMARKNET price data</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>7, 14, or 30 day forecasts</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Highlights the best selling day</div>
+        <div class="mfeat"><div class="mfeat-chk"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg></div>Weather and seasonal adjustments</div>
+      </div>
+      <button class="btn-p" style="width:auto" onclick="document.getElementById('price-btn').click()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='22 7 13.5 15.5 8.5 10.5 2 17'/><polyline points='16 7 22 7 22 13'/></svg> Run Live Forecast</button>
+    </div>
+  </div>
+
+  <div class="mpanel" id="mod-calendar">
+    <div class="cal-layout" style="display:grid;grid-template-columns:1fr 1fr;gap:32px" id="mod-cal-layout">
+      <div class="reveal">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="cal-tabs">
+          <button class="badge bg-g" style="cursor:none;padding:7px 14px;font-size:.78rem" onclick="loadCal('Rice',this)">Rice</button>
+          <button class="badge" style="cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="loadCal('Wheat',this)">Wheat</button>
+          <button class="badge" style="cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="loadCal('Tomato',this)">Tomato</button>
+        </div>
+        <div class="cal-widget">
+          <div class="cal-head">
+            <button class="cal-btn" onclick="moveCal(-1)">‹</button>
+            <span class="cal-month" id="cal-month">June 2025</span>
+            <button class="cal-btn" onclick="moveCal(1)">›</button>
+          </div>
+          <div class="cal-wrap">
+            <div class="cal-wd"><span class="cal-wdh">Su</span><span class="cal-wdh">Mo</span><span class="cal-wdh">Tu</span><span class="cal-wdh">We</span><span class="cal-wdh">Th</span><span class="cal-wdh">Fr</span><span class="cal-wdh">Sa</span></div>
+            <div class="cal-days" id="cal-days"></div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal d1">
+        <div style="font-size:.9rem;font-weight:800;color:var(--n900);margin-bottom:14px;letter-spacing:-.02em" id="cal-ev-title">Rice — Full Season Events</div>
+        <div class="ev-list" id="cal-events"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<section class="sec" id="market">
+<div class="sec-in">
+  <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:32px" class="reveal">
+    <div>
+      <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='18' y1='20' x2='18' y2='10'/><line x1='12' y1='20' x2='12' y2='4'/><line x1='6' y1='20' x2='6' y2='14'/></svg> Live Data</div>
+      <h2 class="sec-h2">Live <em>Mandi</em> Prices</h2>
+      <p class="sec-sub" style="margin-top:10px">Real-time prices from mandis across India, updated continuously.</p>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="live-bar"><span class="lpulse" style="margin-right:6px"></span>Live · <span id="mkt-time" style="margin-left:4px">--:--</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="mkt-filters">
+        <button class="badge bg-g" style="cursor:none;padding:7px 14px;font-size:.78rem" onclick="filterMkt('all',this)">All Crops</button>
+        <button class="badge" style="cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="filterMkt('Tomato',this)">Tomato</button>
+        <button class="badge" style="cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="filterMkt('Rice',this)">Rice</button>
+        <button class="badge" style="cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="filterMkt('Wheat',this)">Wheat</button>
+        <button class="badge" style="cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="filterMkt('Cotton',this)">Cotton</button>
+      </div>
+      <button class="btn-o" style="padding:9px 16px;font-size:.82rem" onclick="loadMarket(mktF)"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='5' y1='12' x2='19' y2='12'/><polyline points='12 5 19 12 12 19'/></svg> Refresh</button>
+    </div>
+  </div>
+  <div class="mkt-tbl reveal">
+    <div class="mkt-thead"><div>Crop</div><div>Price / Quintal</div><div>Change</div><div>Range</div><div>Live</div></div>
+    <div id="mkt-rows"><div style="text-align:center;padding:40px"><div class="spin"></div></div></div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<section class="sec" id="disease" style="background:var(--n50)">
+<div class="sec-in">
+  <div class="dis-grid">
+    <div class="reveal">
+      <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M6 18h8'/><path d='M3 22h18'/><path d='M14 22a7 7 0 1 0 0-14h-1'/><path d='M9 14h2'/><path d='M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2z'/><path d='M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3'/></svg> Computer Vision AI</div>
+      <h2 class="sec-h2">Crop Disease <em>Detector</em></h2>
+      <p class="sec-sub">Upload a photo of your crop leaf. Our model identifies diseases and prescribes treatment instantly.</p>
+      <div style="margin-top:32px">
+        <div class="upload-box" id="upload-box" onclick="document.getElementById('leaf-input').click()" ondrop="onDrop(event)" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)">
+          <input type="file" id="leaf-input" accept="image/*" onchange="onFileSelect(event)">
+          <div id="upload-inner">
+            <div class="up-icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='16 16 12 12 8 16'/><line x1='12' y1='12' x2='12' y2='21'/><path d='M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3'/></svg></div>
+            <div style="font-size:1rem;font-weight:800;color:var(--n900);margin-bottom:6px;letter-spacing:-.02em">Drop leaf photo here</div>
+            <div style="font-size:.82rem;color:var(--n500);line-height:1.6">Click to browse · JPG or PNG · Max 10MB</div>
+          </div>
+        </div>
+        <button class="sbtn" id="detect-btn" onclick="analyseLeaf()" disabled><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M6 18h8'/><path d='M3 22h18'/><path d='M14 22a7 7 0 1 0 0-14h-1'/><path d='M9 14h2'/><path d='M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2z'/><path d='M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3'/></svg> Analyse Leaf</button>
+      </div>
+      <div style="margin-top:20px">
+        <div style="font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--n400);margin-bottom:10px">Quick simulation:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="badge bg-g" style="cursor:none;padding:7px 14px;font-size:.78rem" onclick="simDisease('Healthy')">Healthy</button>
+          <button class="badge bg-o" style="cursor:none;padding:7px 14px;font-size:.78rem" onclick="simDisease('Early Blight')">Early Blight</button>
+          <button class="badge bg-r" style="cursor:none;padding:7px 14px;font-size:.78rem" onclick="simDisease('Rust')">Rust</button>
+          <button class="badge bg-y" style="cursor:none;padding:7px 14px;font-size:.78rem" onclick="simDisease('Yellow Mosaic')">Yellow Mosaic</button>
+          <button class="badge bg-r" style="cursor:none;padding:7px 14px;font-size:.78rem" onclick="simDisease('Late Blight')">Late Blight</button>
+        </div>
+      </div>
+      <div id="disease-result" style="margin-top:16px"></div>
+    </div>
+    <div class="reveal d2">
+      <div style="font-size:.9rem;font-weight:800;color:var(--n900);margin-bottom:16px;letter-spacing:-.02em">Disease Reference Library <span style="font-size:.78rem;font-weight:500;color:var(--n400)">— tap to simulate</span></div>
+      <div class="dlib-grid" id="disease-lib"></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<section class="sec" id="calendar">
+<div class="sec-in">
+  <div class="reveal" style="margin-bottom:40px">
+    <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg> Smart Scheduling</div>
+    <h2 class="sec-h2">Agricultural <em>Calendar</em></h2>
+    <p class="sec-sub">Complete sowing to harvest schedule. Every activity planned at the right time.</p>
+  </div>
+  <div class="cal-layout reveal">
+    <div>
+      <div style="display:flex;gap:8px;margin-bottom:16px" id="cal2-tabs">
+        <button class="badge bg-g" style="cursor:none;padding:8px 16px;font-size:.8rem" onclick="loadCal2('Rice',this)">Rice</button>
+        <button class="badge" style="cursor:none;padding:8px 16px;font-size:.8rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="loadCal2('Wheat',this)">Wheat</button>
+        <button class="badge" style="cursor:none;padding:8px 16px;font-size:.8rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)" onclick="loadCal2('Tomato',this)">Tomato</button>
+      </div>
+      <div class="cal-widget">
+        <div class="cal-head">
+          <button class="cal-btn" onclick="moveCal2(-1)">‹</button>
+          <span class="cal-month" id="cal2-month">June 2025</span>
+          <button class="cal-btn" onclick="moveCal2(1)">›</button>
+        </div>
+        <div class="cal-wrap">
+          <div class="cal-wd"><span class="cal-wdh">Su</span><span class="cal-wdh">Mo</span><span class="cal-wdh">Tu</span><span class="cal-wdh">We</span><span class="cal-wdh">Th</span><span class="cal-wdh">Fr</span><span class="cal-wdh">Sa</span></div>
+          <div class="cal-days" id="cal2-days"></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:.9rem;font-weight:800;color:var(--n900);margin-bottom:14px;letter-spacing:-.02em" id="cal2-title">Rice — Full Season Schedule</div>
+      <div class="ev-list" id="cal2-events"></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section class="sec" id="levels" style="background:var(--n50)">
+<div class="sec-in">
+  <div class="reveal" style="text-align:center;max-width:560px;margin:0 auto">
+    <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/><circle cx='12' cy='7' r='4'/></svg> For Everyone</div>
+    <h2 class="sec-h2">Works for <em>every</em> farmer</h2>
+    <p class="sec-sub" style="margin:14px auto 0">Whether you've never farmed or you're a seasoned agronomist — AgriSense speaks your language.</p>
+  </div>
+  <div class="lvl-grid">
+    <div class="lvl-card reveal">
+      <div class="lvl-img"><img src="https://images.unsplash.com/photo-1560493676-04071c5f467b?w=600&q=80&fit=crop" alt="Beginner" loading="lazy"></div>
+      <div class="lvl-body">
+        <span class="lvl-tag bg-y">Beginner</span>
+        <div class="lvl-name">New to Farming</div>
+        <div class="lvl-desc">Step-by-step visual guides for anyone starting out.</div>
+        <div class="lvl-feats"><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> What crop suits your land</div><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> Basic care routines &amp; timing</div><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> Visual disease identification</div></div>
+      </div>
+    </div>
+    <div class="lvl-card reveal d1">
+      <div class="lvl-img"><img src="https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?w=600&q=80&fit=crop" alt="Intermediate" loading="lazy"></div>
+      <div class="lvl-body">
+        <span class="lvl-tag bg-g">Intermediate</span>
+        <div class="lvl-name">Some Experience</div>
+        <div class="lvl-desc">Market timing, AI schedules, and data-driven decisions.</div>
+        <div class="lvl-feats"><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> 7-day price forecasts</div><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> Fertiliser &amp; pest schedules</div><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> Mandi price comparison</div></div>
+      </div>
+    </div>
+    <div class="lvl-card reveal d2">
+      <div class="lvl-img"><img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&fit=crop" alt="Expert" loading="lazy"></div>
+      <div class="lvl-body">
+        <span class="lvl-tag bg-o">Expert</span>
+        <div class="lvl-name">Seasoned Farmer</div>
+        <div class="lvl-desc">Deep analytics, ML model outputs, and advanced insights.</div>
+        <div class="lvl-feats"><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> ML price prediction models</div><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> Yield optimisation data</div><div class="lvl-f"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='20 6 9 17 4 12'/></svg> Export market analysis</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     DIRECT MARKET CONNECT
+════════════════════════════════════════════════════ -->
+<section class="sec" id="direct-market">
+<div class="sec-in">
+  <div class="reveal" style="text-align:center;max-width:600px;margin:0 auto 48px">
+    <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg> No More Middlemen</div>
+    <h2 class="sec-h2">Sell directly to <em>companies</em></h2>
+    <p class="sec-sub" style="margin:14px auto 0">Skip brokers entirely. Connect directly with verified food companies, exporters, and processors — negotiate your own price and keep what you earn.</p>
+  </div>
+
+  <!-- Hero banner -->
+  <div class="dmc-hero reveal">
+    <div class="dmc-hero-text">
+      <h3>Brokers take 20–35%.<br><em>You deserve better.</em></h3>
+      <p>AgriSense connects you directly to company procurement heads. Send your crop details, negotiate pricing, and finalise deals — no broker, no commission, no exploitation.</p>
+      <div class="dmc-hero-stats">
+        <div class="dmc-hs"><div class="dmc-hs-n">₹2,400Cr+</div><div class="dmc-hs-l">Deals Facilitated</div></div>
+        <div class="dmc-hs"><div class="dmc-hs-n">340+</div><div class="dmc-hs-l">Verified Companies</div></div>
+        <div class="dmc-hs"><div class="dmc-hs-n">28%</div><div class="dmc-hs-l">Avg. More Profit</div></div>
+      </div>
+    </div>
+    <div class="dmc-hero-img">
+      <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80&fit=crop" alt="Farmer meeting company">
+    </div>
+  </div>
+
+  <!-- Category tabs -->
+  <div class="dmc-tabs reveal">
+    <button class="dmc-tab act" onclick="filterCompanies('all',this)">🏭 All Companies</button>
+    <button class="dmc-tab" onclick="filterCompanies('vegetables',this)">🥬 Vegetables</button>
+    <button class="dmc-tab" onclick="filterCompanies('grains',this)">🌾 Grains & Pulses</button>
+    <button class="dmc-tab" onclick="filterCompanies('fruits',this)">🍅 Fruits</button>
+    <button class="dmc-tab" onclick="filterCompanies('export',this)">✈️ Export Houses</button>
+    <button class="dmc-tab" onclick="filterCompanies('processing',this)">🏗️ Processing Units</button>
+  </div>
+
+  <!-- Company cards -->
+  <div class="company-grid reveal" id="company-grid">
+    <!-- Populated by JS -->
+    <div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spin"></div></div>
+  </div>
+
+  <!-- Recent deals feed -->
+  <div class="reveal" style="margin-top:48px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div>
+        <div class="sec-lbl" style="margin-bottom:6px">Live Feed</div>
+        <div style="font-size:1.05rem;font-weight:800;color:var(--n900);letter-spacing:-.03em">Recent farmer deals <span style="font-size:.8rem;font-weight:500;color:var(--n400)">— anonymised</span></div>
+      </div>
+      <div class="live-bar"><span class="lpulse" style="margin-right:6px"></span>Live</div>
+    </div>
+    <div class="deal-feed" id="deal-feed">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- Negotiation / Contact Modal -->
+<div class="modal-overlay" id="contact-modal">
+  <div class="modal-box">
+    <div class="modal-title">📬 Send Deal Request</div>
+    <div class="modal-sub">The company's procurement team will contact you within 24 hours.</div>
+    <div class="modal-company-strip">
+      <div class="mcs-logo" id="modal-co-logo">🏭</div>
+      <div>
+        <div class="mcs-name" id="modal-co-name">Company Name</div>
+        <div class="mcs-offer" id="modal-co-offer">Offering ₹— / quintal</div>
+      </div>
+    </div>
+    <div class="modal-fields">
+      <div>
+        <label class="mf-label">Your Name</label>
+        <input class="mf-input" id="m-name" placeholder="Ramesh Patil">
+      </div>
+      <div class="mf-row">
+        <div>
+          <label class="mf-label">Phone Number</label>
+          <input class="mf-input" id="m-phone" placeholder="+91 98765 43210" type="tel">
+        </div>
+        <div>
+          <label class="mf-label">District / State</label>
+          <input class="mf-input" id="m-location" placeholder="Nashik, Maharashtra">
+        </div>
+      </div>
+      <div class="mf-row">
+        <div>
+          <label class="mf-label">Crop & Variety</label>
+          <input class="mf-input" id="m-crop" placeholder="Tomato — Hybrid F1">
+        </div>
+        <div>
+          <label class="mf-label">Quantity (quintals)</label>
+          <input class="mf-input" id="m-qty" type="number" placeholder="50">
+        </div>
+      </div>
+      <div>
+        <label class="mf-label">Your Expected Price (₹/quintal)</label>
+        <input class="mf-input" id="m-price" type="number" placeholder="2200" id="m-price">
+      </div>
+      <div>
+        <label class="mf-label">Message (optional)</label>
+        <textarea class="mf-input" id="m-msg" rows="2" placeholder="Freshly harvested, Grade A quality. Available from next week." style="resize:vertical"></textarea>
+      </div>
+    </div>
+    <div class="modal-note">🔒 Your contact details are shared only with the company's verified procurement officer. AgriSense never charges a commission on deals.</div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-submit" onclick="submitDealRequest()">Send Request →</button>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     CHATBOT (existing) — enhanced with multilingual
+════════════════════════════════════════════════════ -->
+<section class="sec" id="chatbot">
+<div class="sec-in">
+  <div class="chat-layout">
+    <div class="reveal">
+      <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='3' y='8' width='18' height='13' rx='2'/><path d='M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5'/><circle cx='9' cy='14' r='1'/><circle cx='15' cy='14' r='1'/><path d='M9 17h6'/></svg> AI Assistant — 22 Indian Languages</div>
+      <h2 class="sec-h2">Meet <em>AgriBot</em>,<br>your farming guide</h2>
+      <p class="sec-sub" style="margin-bottom:28px">Ask anything about farming in <strong>your own language</strong> — Hindi, Tamil, Telugu, Marathi, Kannada and 17 more. Voice input available. Available 24/7 with actionable, personalised advice.</p>
+      <div class="cf"><div class="cf-ic" style="background:var(--g50)"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.68 19 2c1 2 2 4.5 2 7A7 7 0 0 1 11 20z'/><path d='M7 20a1 1 0 0 0 4 0c0-3-1-7-4-11'/></svg></div><div><div class="cf-t">Crop guidance for any skill level</div><div class="cf-d">From complete beginners to seasoned agronomists — AgriBot adapts and answers clearly.</div></div></div>
+      <div class="cf"><div class="cf-ic" style="background:#fff7ed"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><polyline points='22 7 13.5 15.5 8.5 10.5 2 17'/><polyline points='16 7 22 7 22 13'/></svg></div><div><div class="cf-t">Live price &amp; market insights</div><div class="cf-d">Ask about current mandi prices, best selling times, or which market gives the best rate.</div></div></div>
+      <div class="cf"><div class="cf-ic" style="background:#faf5ff"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/></svg></div><div><div class="cf-t">Disease &amp; treatment advice</div><div class="cf-d">Describe symptoms or upload a leaf photo for instant disease identification and treatment.</div></div></div>
+      <button class="btn-p" style="width:auto;margin-top:8px" onclick="document.getElementById('chat-inp').focus()"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='3' y='8' width='18' height='13' rx='2'/><path d='M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5'/><circle cx='9' cy='14' r='1'/><circle cx='15' cy='14' r='1'/><path d='M9 17h6'/></svg> Start Chatting</button>
+    </div>
+    <div class="reveal d2">
+      <div class="chat-widget">
+        <!-- Language selector -->
+        <div class="lang-selector-bar">
+          <span class="lang-lbl">भाषा</span>
+          <button class="lang-btn act" onclick="setLang('en',this)" data-lang="en">English</button>
+          <button class="lang-btn" onclick="setLang('hi',this)" data-lang="hi">हिंदी</button>
+          <button class="lang-btn" onclick="setLang('mr',this)" data-lang="mr">मराठी</button>
+          <button class="lang-btn" onclick="setLang('ta',this)" data-lang="ta">தமிழ்</button>
+          <button class="lang-btn" onclick="setLang('te',this)" data-lang="te">తెలుగు</button>
+          <button class="lang-btn" onclick="setLang('kn',this)" data-lang="kn">ಕನ್ನಡ</button>
+          <button class="lang-btn" onclick="setLang('pa',this)" data-lang="pa">ਪੰਜਾਬੀ</button>
+          <button class="lang-btn" onclick="setLang('gu',this)" data-lang="gu">ગુજરાતી</button>
+          <button class="lang-btn" onclick="setLang('bn',this)" data-lang="bn">বাংলা</button>
+          <button class="lang-btn" onclick="setLang('ml',this)" data-lang="ml">മലയാളം</button>
+          <button class="lang-btn" onclick="setLang('or',this)" data-lang="or">ଓଡ଼ିଆ</button>
+          <button class="lang-btn" onclick="setLang('as',this)" data-lang="as">অসমীয়া</button>
+        </div>
+
+        <div class="chat-top">
+          <div class="chat-av"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='3' y='8' width='18' height='13' rx='2'/><path d='M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5'/><circle cx='9' cy='14' r='1'/><circle cx='15' cy='14' r='1'/><path d='M9 17h6'/></svg></div>
+          <div><div class="chat-nm">AgriBot</div><div class="chat-st" id="bot-lang-status">English — Change language above</div></div>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+            <span class="badge bg-g">22 Languages</span>
+          </div>
+        </div>
+        <div class="chat-body" id="chat-msgs">
+          <div class="msg"><div class="msg-av av-bot"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><rect x='3' y='8' width='18' height='13' rx='2'/><path d='M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5'/><circle cx='9' cy='14' r='1'/><circle cx='15' cy='14' r='1'/><path d='M9 17h6'/></svg></div><div class="bubble b-bot">Namaste! 🙏 I'm AgriBot — I speak Hindi, Tamil, Telugu, Marathi, Kannada, Punjabi, Gujarati, Bengali and more. Select your language above or just type/speak in your language — I'll understand. How can I help you today?</div></div>
+        </div>
+        <div class="chat-sugs" id="chat-sugs">
+          <button class="csug" onclick="sendSug(LANG_SUGS[currentLang]?.[0]||'Best crops for monsoon in Karnataka')">🌧️ Monsoon crops</button>
+          <button class="csug" onclick="sendSug(LANG_SUGS[currentLang]?.[1]||'How to treat rice blight')">🍃 Blight treatment</button>
+          <button class="csug" onclick="sendSug(LANG_SUGS[currentLang]?.[2]||'Current tomato price')">🍅 Tomato price</button>
+          <button class="csug" onclick="sendSug(LANG_SUGS[currentLang]?.[3]||'How to sell directly to company without broker')">🏭 Direct to company</button>
+          <button class="csug" onclick="sendSug(LANG_SUGS[currentLang]?.[4]||'PM-KISAN scheme details')">🏛️ PM-KISAN</button>
+        </div>
+        <div class="chat-in-bar">
+          <input class="chat-inp" id="chat-inp" placeholder="अपनी भाषा में पूछें / Ask in your language..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="voice-btn" id="voice-btn" onclick="toggleVoice()" title="Voice input">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+          <button class="chat-send" onclick="sendChat()"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='22' y1='2' x2='11' y2='13'/><polygon points='22 2 15 22 11 13 2 9 22 2'/></svg> Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<section class="sec" id="schemes" style="background:var(--n50)">
+<div class="sec-in">
+  <div class="reveal" style="text-align:center;max-width:560px;margin:0 auto 16px">
+    <div class="sec-lbl"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><line x1='3' y1='22' x2='21' y2='22'/><line x1='6' y1='18' x2='6' y2='11'/><line x1='10' y1='18' x2='10' y2='11'/><line x1='14' y1='18' x2='14' y2='11'/><line x1='18' y1='18' x2='18' y2='11'/><polygon points='12 2 20 7 4 7'/></svg> Government Support</div>
+    <h2 class="sec-h2">Schemes every <em>farmer</em> should know</h2>
+    <p class="sec-sub" style="margin:14px auto 0">Key government programmes that directly benefit Indian farmers.</p>
+  </div>
+  <div class="sc-grid" id="schemes-list">
+    <div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spin"></div></div>
+  </div>
+</div>
+</section>
+
+<footer>
+<div class="ft-in">
+  <div class="ft-top">
+    <div>
+      <div class="logo"><div class="logo-ic"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class=""><path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.68 19 2c1 2 2 4.5 2 7A7 7 0 0 1 11 20z'/><path d='M7 20a1 1 0 0 0 4 0c0-3-1-7-4-11'/></svg></div><div class="logo-nm">Agri<span>Sense</span></div></div>
+      <p style="font-size:.84rem;color:rgba(255,255,255,.4);line-height:1.72;margin-top:10px;max-width:220px">AI-powered crop intelligence, live market data, and disease detection for every Indian farmer.</p>
+    </div>
+    <div class="ft-col"><h5>Platform</h5><a href="#features">Features</a><a href="#modules">Crop Advisor</a><a href="#market">Live Prices</a><a href="#disease">Disease AI</a></div>
+    <div class="ft-col"><h5>Resources</h5><a href="#direct-market">Direct Market</a><a href="#calendar">Ag Calendar</a><a href="#schemes">Gov Schemes</a><a href="#chatbot">AgriBot</a></div>
+    <div class="ft-col"><h5>Official Links</h5><a href="https://agmarknet.gov.in" target="_blank">AGMARKNET</a><a href="https://pmkisan.gov.in" target="_blank">PM-KISAN</a><a href="https://icar.org.in" target="_blank">ICAR India</a><a href="https://soilhealth.dac.gov.in" target="_blank">Soil Health Card</a></div>
+  </div>
+  <div class="ft-bot"><p>© 2025 AgriSense — Intelligent Farming Platform</p><p>Built for Indian Farmers</p></div>
+</div>
+</footer>
+\n<script>
+'use strict';
+// ── Leaf cursor ──
+const CD=document.getElementById('cur-d'),CR=document.getElementById('cur-r');
+let mx=0,my=0,rx=0,ry=0,lx=0,ly=0;
+document.addEventListener('mousemove',e=>{
+  lx=mx; ly=my; mx=e.clientX; my=e.clientY;
+  const dx=mx-lx, dy=my-ly;
+  const angle = Math.atan2(dy,dx)*(180/Math.PI) - 35;
+  CD.style.transform=`translate(${mx}px,${my}px)`;
+  CD.querySelector('.cur-leaf').style.transform=`translate(-50%,-50%) rotate(${angle}deg)`;
+});
+// Enlarge trail on hover over clickables
+document.querySelectorAll('button,a,[onclick]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{ CR.querySelector('.cur-trail').style.cssText='width:38px;height:38px;background:rgba(74,222,128,.2);border:1.5px solid rgba(34,197,94,.5);transform:translate(-50%,-50%)'; });
+  el.addEventListener('mouseleave',()=>{ CR.querySelector('.cur-trail').style.cssText='width:10px;height:10px;background:rgba(74,222,128,.55);transform:translate(-50%,-50%)'; });
+});
+(function ar(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;CR.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(ar);})();
+
+window.addEventListener('scroll',()=>{
+  document.getElementById('mainnav').classList.toggle('scrolled',scrollY>20);
+  document.querySelectorAll('.nl').forEach(l=>{const href=l.getAttribute('href');if(href&&href.startsWith('#')){const s=document.querySelector(href);if(s){const r=s.getBoundingClientRect();l.classList.toggle('act',r.top<=80&&r.bottom>0);}}});
+});
+
+const SRO=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');SRO.unobserve(e.target);}}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>SRO.observe(el));
+
+const cntO=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const el=e.target,t=+el.dataset.t,s=el.dataset.s||'';let c=0;const step=t/30,tmr=setInterval(()=>{c=Math.min(c+step,t);el.textContent=Math.round(c)+s;if(c>=t)clearInterval(tmr);},30);cntO.unobserve(el);}),{threshold:.3});
+document.querySelectorAll('.st-n[data-t]').forEach(el=>cntO.observe(el));
+
+const BASE = window.location.origin.includes('http') ? window.location.origin : 'http://localhost:5000';
+async function api(p,m='GET',b=null){
+  if(window.agriApi){
+    return window.agriApi(p, m, b);
+  }
+  const o={method:m,headers:{'Content-Type':'application/json'}};
+  if(b)o.body=JSON.stringify(b);
+  return(await fetch(BASE+p,o)).json();
+}
+
+// Session awareness on index.html
+window.addEventListener('DOMContentLoaded', async () => {
+  if (window.agriAuth) {
+    const user = await window.agriAuth.getUser();
+    if (user) {
+      const loginBtn = document.querySelector('a[href="login.html"]');
+      if (loginBtn) {
+        const name = (user.user_metadata && user.user_metadata.first_name) || (user.email ? user.email.split('@')[0] : 'Farmer');
+        loginBtn.innerHTML = `👤 ${name} · Sign Out`;
+        loginBtn.href = '#';
+        loginBtn.onclick = async (e) => {
+          e.preventDefault();
+          await window.agriAuth.logout();
+          toast('Signed out successfully');
+          setTimeout(() => window.location.reload(), 800);
+        };
+      }
+    }
+  }
+});
+function gv(id){const e=document.getElementById(id);return e?e.value:'';}
+function kv(k,v){return`<div class="rkv"><span class="rk">${k}</span><span class="rv">${v||'—'}</span></div>`;}
+const MN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const EC={sow:'#22c55e',plant:'#16a34a',irrigate:'#0ea5e9',fertilize:'#eab308',harvest:'#f97316',soil:'#a1887f',spray:'#ec4899',monitor:'#a855f7',care:'#06b6d4'};
+function toast(msg,dur=2400){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
+
+function switchMod(name,btn){document.querySelectorAll('.mt').forEach(b=>b.classList.remove('act'));btn.classList.add('act');document.querySelectorAll('.mpanel').forEach(p=>p.classList.remove('act'));document.getElementById('mod-'+name).classList.add('act');if(name==='calendar')loadCal('Rice',null);}
+
+async function getCropRec(){const btn=document.getElementById('crop-btn');btn.disabled=true;btn.textContent='Analysing...';toast('Running ML crop model...');
+  try{const d=await api('/api/crops/recommend','POST',{N:+gv('c-n'),P:+gv('c-p'),K:+gv('c-k'),temperature:+gv('c-temp'),humidity:+gv('c-hum'),ph:+gv('c-ph'),rainfall:+gv('c-rain'),season:gv('c-season')});
+    const b=document.getElementById('crop-res');b.classList.add('show');
+    b.innerHTML=`<div style="font-size:.86rem;font-weight:800;color:var(--g700);margin-bottom:12px">Top Picks — ${d.season.charAt(0).toUpperCase()+d.season.slice(1)} Season</div>
+    ${d.recommendations.map(r=>`<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--n100);cursor:none;transition:padding .18s" onmouseover="this.style.paddingLeft='8px'" onmouseout="this.style.paddingLeft='0'">
+      <div style="font-size:1.4rem">${r.emoji||'🌾'}</div>
+      <div style="flex:1"><div style="font-weight:700;font-size:.88rem;color:var(--n900)">${r.crop}</div><div style="font-size:.73rem;color:var(--n400);margin-top:1px">${r.reason}</div></div>
+      <div style="text-align:right"><div style="font-size:.86rem;font-weight:800;color:var(--g600)">${r.score}%</div><div style="font-size:.7rem;color:var(--n400)">${r.yield||''}</div></div>
+    </div>`).join('')}
+    <div style="margin-top:8px;font-size:.72rem;color:var(--n400)">Hover any crop to highlight</div>`;}
+  catch(e){toast('Error — is Flask running?');}
+  btn.disabled=false;btn.textContent='Get AI Recommendations';}
+
+document.getElementById('p-month').value=new Date().getMonth()+1;
+async function getPriceFC(){const btn=document.getElementById('price-btn');btn.disabled=true;btn.textContent='Forecasting...';toast('Running price model...');
+  try{const d=await api('/api/price/predict','POST',{crop:gv('p-crop'),month:+gv('p-month'),rainfall:+gv('p-rain'),temperature:+gv('p-temp'),days_ahead:+gv('p-days')});
+    document.getElementById('chart-lbl').textContent=`${d.crop} — Price Forecast (₹/quintal)`;
+    document.getElementById('price-chart-box').style.display='block';
+    const maxP=Math.max(...d.forecast.map(f=>f.price)),minP=Math.min(...d.forecast.map(f=>f.price));
+    document.getElementById('price-chart').innerHTML=d.forecast.map(f=>{const pct=Math.max(8,((f.price-minP*.84)/(maxP*1.16-minP*.84))*100);const ib=f.day===d.best_day.day;return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px"><div style="font-size:.52rem;font-weight:700;color:var(--g600)">${f.price>=1000?(f.price/1000).toFixed(1)+'k':Math.round(f.price)}</div><div style="width:100%;border-radius:4px 4px 0 0;background:${ib?'linear-gradient(to top,#d97706,#fbbf24)':'linear-gradient(to top,var(--g600),var(--g400))'};height:${pct}%;min-height:3px;position:relative;transition:height .9s cubic-bezier(.34,1.56,.64,1)">${ib?'<span style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:.62rem;color:#d97706;font-weight:700">★</span>':''}</div><div style="font-size:.52rem;color:var(--n400)">${f.date.split(' ')[0]}</div></div>`;}).join('');
+    document.getElementById('price-badges').innerHTML=`<span class="badge bg-y">Best: ${d.best_day.date} · ₹${Math.round(d.best_day.price)}</span> <span class="badge bg-g">Avg ₹${d.avg_forecast}/q</span> <span class="badge bg-${d.current_change>=0?'g':'r'}">${d.current_change>=0?'▲':'▼'} ${Math.abs(d.current_change)}%</span>`;
+    const rb=document.getElementById('price-res');rb.classList.add('show');rb.innerHTML=`<div style="font-size:.88rem;font-weight:800;color:var(--g700);margin-bottom:11px">${d.crop} Analysis</div>${kv('Current Price','₹'+d.current_price+'/q ('+d.market+')')}${kv('Best Day',`<strong style="color:var(--g600)">${d.best_day.date} · ₹${Math.round(d.best_day.price)}/q</strong>`)}${kv('Avg Forecast','₹'+d.avg_forecast+'/q')}${kv('AI Advice',`<span style="color:var(--g600)">${d.recommendation}</span>`)}`;}
+  catch(e){toast('Error — is Flask running?');}
+  btn.disabled=false;btn.textContent='Run Forecast';}
+
+let mktF='all';
+async function loadMarket(f='all'){mktF=f;const rows=document.getElementById('mkt-rows');rows.innerHTML='<div style="text-align:center;padding:40px"><div class="spin"></div></div>';const d=await api('/api/market/live'+(f!=='all'?`?crop=${f}`:''));document.getElementById('mkt-time').textContent=d.updated_at;rows.innerHTML=(d.prices||[]).map(p=>`<div class="mkt-row"><div class="mkt-crop"><div class="mkt-crop-ic">${p.emoji||'🌾'}</div><div><div class="mkt-nm">${p.crop}</div><div class="mkt-loc">📍 ${p.market}</div></div></div><div class="mkt-pr">₹${p.price.toLocaleString()}</div><div class="mkt-ch ${p.trend==='up'?'up':'dn'}">${p.trend==='up'?'▲':'▼'} ${Math.abs(p.change)}%</div><div class="mkt-rng">₹${p.min.toLocaleString()} – ₹${p.max.toLocaleString()}</div><div><div class="lpulse"></div></div></div>`).join('');}
+function filterMkt(f,btn){document.querySelectorAll('#mkt-filters .badge').forEach(b=>{b.className='badge';b.style.cssText='cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)';});btn.className='badge bg-g';btn.style.cssText='cursor:none;padding:7px 14px;font-size:.78rem';loadMarket(f==='all'?'all':f);}
+setInterval(()=>loadMarket(mktF),30000);
+
+let leafFile=null;
+function onFileSelect(e){leafFile=e.target.files[0];prevLeaf(leafFile);}
+function onDrop(e){e.preventDefault();leafFile=e.dataTransfer.files[0];prevLeaf(leafFile);document.getElementById('upload-box').classList.remove('drag');}
+function onDragOver(e){e.preventDefault();document.getElementById('upload-box').classList.add('drag');}
+function onDragLeave(){document.getElementById('upload-box').classList.remove('drag');}
+function prevLeaf(file){if(!file)return;const r=new FileReader();r.onload=e=>{document.getElementById('upload-inner').innerHTML=`<img src="${e.target.result}" style="max-height:130px;border-radius:12px;object-fit:cover;margin-bottom:10px;box-shadow:var(--sh3)"><div style="font-size:.82rem;color:var(--g600);font-weight:700">✓ ${file.name}</div>`;document.getElementById('detect-btn').disabled=false;};r.readAsDataURL(file);}
+async function analyseLeaf(){if(!leafFile)return;const btn=document.getElementById('detect-btn');btn.disabled=true;btn.textContent='Analysing...';const r=new FileReader();r.onload=async e=>{const d=await api('/api/disease/detect','POST',{image:e.target.result});renderDis(d);btn.disabled=false;btn.textContent='Analyse Leaf';};r.readAsDataURL(leafFile);}
+async function simDisease(name){toast(`Simulating ${name}...`);const cv=document.createElement('canvas');cv.width=cv.height=64;const ctx=cv.getContext('2d');const cols={Healthy:[100,185,80],'Early Blight':[80,105,55],'Late Blight':[60,80,45],Rust:[160,95,55],'Yellow Mosaic':[225,205,55],'Powdery Mildew':[240,235,210],'Bacterial Blight':[70,120,60],'Leaf Curl':[175,165,70],Anthracnose:[85,90,50]};const[rr,gg,bb]=cols[name]||[100,150,80];for(let i=0;i<64;i++)for(let j=0;j<64;j++){ctx.fillStyle=`rgb(${rr+Math.random()*30-15|0},${gg+Math.random()*30-15|0},${bb+Math.random()*30-15|0})`;ctx.fillRect(j,i,1,1);}const d=await api('/api/disease/detect','POST',{image:cv.toDataURL()});d.disease=name;d.confidence=parseFloat((88+Math.random()*9).toFixed(1));renderDis(d);}
+function renderDis(d){const cm={green:'bg-g',orange:'bg-o',red:'bg-r',yellow:'bg-y'};const hc={green:'var(--g600)',orange:'#c2410c',red:'#991b1b',yellow:'#92400e'}[d.color]||'var(--g600)';const sw={None:'0%',Moderate:'45%',Severe:'82%','Moderate-Severe':'64%'}[d.severity]||'30%';const sc={None:'var(--g500)',Moderate:'#f59e0b',Severe:'#ef4444','Moderate-Severe':'#f97316'}[d.severity]||'var(--g500)';const bg=d.color==='red'?'#fef2f2':d.color==='orange'?'#fff7ed':'var(--g50)';const bc=d.color==='red'?'#fecaca':d.color==='orange'?'#fed7aa':'var(--g200)';document.getElementById('disease-result').innerHTML=`<div style="background:#fff;border:1.5px solid var(--n200);border-radius:var(--r4);padding:22px;box-shadow:var(--sh2);animation:su .38s cubic-bezier(.16,1,.3,1)"><div style="display:flex;align-items:center;gap:14px;margin-bottom:16px"><div style="width:52px;height:52px;border-radius:var(--r3);background:${bg};border:1.5px solid ${bc};display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="${hc}" stroke-width="2" stroke-linecap="round"><path d="M6 18h8"/><path d="M3 22h18"/><path d="M14 22a7 7 0 1 0 0-14h-1"/><path d="M9 14h2"/><path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2z"/><path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/></svg></div><div><div style="font-size:1.15rem;font-weight:800;letter-spacing:-.03em;color:${hc}">${d.disease}</div><div style="font-size:.76rem;color:var(--n400);font-style:italic;margin-top:2px">${d.pathogen||'—'}</div></div></div><div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap"><span class="badge ${cm[d.color]||'bg-g'}">Severity: ${d.severity}</span><span class="badge bg-g">Confidence: ${typeof d.confidence==='number'?d.confidence.toFixed(1):d.confidence}%</span></div><div style="height:5px;background:var(--n100);border-radius:99px;overflow:hidden;margin:12px 0"><div style="height:100%;border-radius:99px;background:${sc};width:0%;transition:width 1.2s cubic-bezier(.16,1,.3,1)" data-w="${sw}"></div></div>${kv('Description',d.description||'—')}<div style="margin-top:12px;padding:14px;background:${bg};border-radius:var(--r2);border:1px solid ${bc}"><div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--n500);margin-bottom:5px">Treatment</div><div style="font-size:.84rem;line-height:1.66;color:var(--n800)">${d.treatment||'—'}</div></div><div style="margin-top:10px;padding:12px 14px;background:var(--g50);border-radius:var(--r2);border:1px solid var(--g200)"><div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--n500);margin-bottom:5px">Organic Option</div><div style="font-size:.82rem;color:var(--n700)">${d.organic_treatment||'—'}</div></div>${(d.prevention||[]).length?`<div style="margin-top:12px">${d.prevention.map(p=>`<div style="font-size:.82rem;color:var(--n600);padding:3px 0;display:flex;gap:8px;align-items:flex-start"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--g500)" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:2px"><polyline points="20 6 9 17 4 12"/></svg>${p}</div>`).join('')}</div>`:''}</div>`;setTimeout(()=>{const f=document.querySelector('[data-w]');if(f)f.style.width=f.dataset.w;},120);}
+async function loadDiseaseLib(){const d=await api('/api/disease/list');const bm={green:'bg-g',orange:'bg-o',red:'bg-r',yellow:'bg-y'};document.getElementById('disease-lib').innerHTML=(d.diseases||[]).map(dis=>`<div class="dlib-card" onclick="simDisease('${dis.name}')"><div style="font-size:.85rem;font-weight:700;color:var(--n900);margin-bottom:3px">${dis.name}</div><div style="font-size:.7rem;color:var(--n400);margin-bottom:8px">${(dis.affected_crops||[]).join(', ')||'General'}</div><span class="badge ${bm[dis.color]||'bg-g'}" style="font-size:.67rem">${dis.severity||'—'}</span></div>`).join('');}
+
+let calM=new Date().getMonth()+1,calY=new Date().getFullYear(),calCrop='Rice';
+let cal2M=new Date().getMonth()+1,cal2Y=new Date().getFullYear(),cal2Crop='Rice';
+async function renderCalWid(m,y,crop,daysId,monthId){const d=await api(`/api/calendar/events?crop=${crop}`);const evDays=(d.events||[]).filter(e=>e.month===m).map(e=>e.day);const first=new Date(y,m-1,1).getDay(),days=new Date(y,m,0).getDate();const today=new Date().getDate(),isCur=new Date().getMonth()+1===m&&new Date().getFullYear()===y;document.getElementById(monthId).textContent=`${MN[m-1]} ${y}`;let h='';for(let i=0;i<first;i++)h+='<div></div>';for(let i=1;i<=days;i++){const isT=isCur&&i===today,hasE=evDays.includes(i);h+=`<div class="cd${isT?' tod':''}${hasE?' hev':''}">${i}${hasE&&!isT?'<div class="epip"></div>':''}</div>`;}document.getElementById(daysId).innerHTML=h;}
+async function renderCalEvs(crop,evId,titleId){const d=await api(`/api/calendar/events?crop=${crop}`);if(titleId)document.getElementById(titleId).textContent=`${crop} — Full Season Events`;document.getElementById(evId).innerHTML=(d.events||[]).map(e=>`<div class="ev-item"><div class="ev-dot" style="background:${EC[e.type]||'#22c55e'}"></div><div style="flex:1"><div class="ev-name">${e.event}</div><div class="ev-date">${MN[e.month-1]} ${e.day}</div></div><span class="badge bg-g" style="font-size:.67rem">${e.type}</span></div>`).join('');}
+async function loadCal(crop,btn){calCrop=crop;if(btn){document.querySelectorAll('#cal-tabs .badge').forEach(b=>{b.className='badge';b.style.cssText='cursor:none;padding:7px 14px;font-size:.78rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)';});btn.className='badge bg-g';btn.style.cssText='cursor:none;padding:7px 14px;font-size:.78rem';}await renderCalWid(calM,calY,calCrop,'cal-days','cal-month');await renderCalEvs(calCrop,'cal-events','cal-ev-title');}
+async function loadCal2(crop,btn){cal2Crop=crop;if(btn){document.querySelectorAll('#cal2-tabs .badge').forEach(b=>{b.className='badge';b.style.cssText='cursor:none;padding:8px 16px;font-size:.8rem;background:var(--n100);color:var(--n600);border:1px solid var(--n200)';});btn.className='badge bg-g';btn.style.cssText='cursor:none;padding:8px 16px;font-size:.8rem';}await renderCalWid(cal2M,cal2Y,cal2Crop,'cal2-days','cal2-month');await renderCalEvs(cal2Crop,'cal2-events','cal2-title');}
+function moveCal(dir){calM+=dir;if(calM>12){calM=1;calY++;}if(calM<1){calM=12;calY--;}renderCalWid(calM,calY,calCrop,'cal-days','cal-month');}
+function moveCal2(dir){cal2M+=dir;if(cal2M>12){cal2M=1;cal2Y++;}if(cal2M<1){cal2M=12;cal2Y--;}renderCalWid(cal2M,cal2Y,cal2Crop,'cal2-days','cal2-month');}
+
+const SCICONS=['<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--g600)" stroke-width="2" stroke-linecap="round"><line x1="3" y1="22" x2="21" y2="22"/><line x1="6" y1="18" x2="6" y2="11"/><line x1="10" y1="18" x2="10" y2="11"/><line x1="14" y1="18" x2="14" y2="11"/><line x1="18" y1="18" x2="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--g600)" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--g600)" stroke-width="2" stroke-linecap="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--g600)" stroke-width="2" stroke-linecap="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.68 19 2c1 2 2 4.5 2 7A7 7 0 0 1 11 20z"/><path d="M7 20a1 1 0 0 0 4 0c0-3-1-7-4-11"/></svg>','<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--g600)" stroke-width="2" stroke-linecap="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>'];
+const SCCATS=['Income Support','Crop Insurance','Agricultural Credit','Soil Health','Irrigation'];
+async function loadSchemes(){const d=await api('/api/schemes');document.getElementById('schemes-list').innerHTML=(d.schemes||[]).map((s,i)=>`<div class="sc"><div class="sc-icon">${SCICONS[i]||''}</div><div class="sc-n">${s.name}</div><div class="sc-cat">${SCCATS[i]||'Gov Scheme'}</div><div class="sc-b">${s.benefit}</div><div class="sc-el"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--g500)" stroke-width="2.5" stroke-linecap="round" style="flex-shrink:0;margin-top:1px"><polyline points="20 6 9 17 4 12"/></svg>${s.eligibility}</div><a class="sc-lk" href="https://${s.apply}" target="_blank">Apply at ${s.apply} <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a></div>`).join('');}
+
+const BOTICON='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M9 17h6"/></svg>';
+const USRICON='<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="var(--g600)" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+async function sendChat(){const inp=document.getElementById('chat-inp'),msg=inp.value.trim();if(!msg)return;inp.value='';document.getElementById('chat-sugs').style.display='none';addMsg(msg,'user');const tid=addTyping();try{const d=await api('/api/chatbot','POST',{message:msg});removeTyping(tid);addMsg(d.reply,'bot');}catch(e){removeTyping(tid);addMsg('Sorry, connection error.','bot');}}
+function sendSug(msg){document.getElementById('chat-inp').value=msg;sendChat();}
+function addMsg(text,role){const b=document.getElementById('chat-msgs'),isBot=role==='bot';b.innerHTML+=`<div class="msg${isBot?'':' user'}"><div class="msg-av ${isBot?'av-bot':'av-user'}">${isBot?BOTICON:USRICON}</div><div class="bubble ${isBot?'b-bot':'b-user'}">${text}</div></div>`;b.scrollTop=b.scrollHeight;}
+function addTyping(){const b=document.getElementById('chat-msgs'),id='t'+Date.now();b.innerHTML+=`<div class="msg" id="${id}"><div class="msg-av av-bot">${BOTICON}</div><div class="bubble b-bot"><div class="tdots"><span></span><span></span><span></span></div></div></div>`;b.scrollTop=b.scrollHeight;return id;}
+function removeTyping(id){document.getElementById(id)?.remove();}
+
+// ═══════════════════════════════════════════════
+// DIRECT MARKET CONNECT
+// ═══════════════════════════════════════════════
+
+const COMPANIES = [
+  {id:1,logo:'🥫',name:'ITC Agri Business',type:'Food Processing · FMC Listed',category:'vegetables',crops:['Tomato','Potato','Onion','Chilli'],state:'Pan India',minQty:'100 qtl',offer:'₹2,180/qtl',trend:'+12%',rating:4.8,deals:1240,verified:true,contact:'procurement@itc.in'},
+  {id:2,logo:'🌾',name:'AMUL Procurement',type:'Dairy & Agri Co-operative',category:'grains',crops:['Wheat','Maize','Soybean','Bajra'],state:'Gujarat, Rajasthan, MP',minQty:'50 qtl',offer:'₹2,420/qtl',trend:'+8%',rating:4.9,deals:3400,verified:true,contact:'agri@amul.coop'},
+  {id:3,logo:'🍅',name:'Mahindra Agri',type:'Agri-tech & Export',category:'export',crops:['Tomato','Mango','Grapes','Pomegranate'],state:'Maharashtra, AP',minQty:'200 qtl',offer:'₹3,100/qtl',trend:'+18%',rating:4.7,deals:880,verified:true,contact:'export@mahindraagri.in'},
+  {id:4,logo:'🥕',name:'Reliance Fresh Farms',type:'Retail Procurement',category:'vegetables',crops:['All Vegetables','Leafy Greens','Herbs'],state:'Pan India',minQty:'20 qtl',offer:'₹1,950/qtl',trend:'+5%',rating:4.6,deals:5600,verified:true,contact:'farms@reliancefresh.in'},
+  {id:5,logo:'🌽',name:'Cargill India Pvt Ltd',type:'Global Grain Processor',category:'grains',crops:['Maize','Soybean','Sunflower','Wheat'],state:'Karnataka, MP, UP',minQty:'500 qtl',offer:'₹2,650/qtl',trend:'+10%',rating:4.5,deals:2100,verified:true,contact:'grains@cargill.com'},
+  {id:6,logo:'🍋',name:'Himalaya Drug Export',type:'Herbal & Medicinal Export',category:'export',crops:['Tulsi','Neem','Ashwagandha','Turmeric'],state:'Uttarakhand, Himachal',minQty:'10 qtl',offer:'₹8,500/qtl',trend:'+35%',rating:4.8,deals:430,verified:true,contact:'herbs@himalaya.in'},
+  {id:7,logo:'🍇',name:'Sahyadri Farms Export',type:'Grape & Fruit Exporter',category:'fruits',crops:['Grapes','Banana','Strawberry','Papaya'],state:'Maharashtra, Karnataka',minQty:'50 qtl',offer:'₹4,200/qtl',trend:'+22%',rating:4.7,deals:760,verified:true,contact:'export@sahyadrifarms.com'},
+  {id:8,logo:'🏭',name:'Mother Dairy Fruits',type:'Processing & Retail',category:'processing',crops:['Mango','Tomato','Guava','Amla'],state:'Delhi NCR, UP, Bihar',minQty:'30 qtl',offer:'₹2,800/qtl',trend:'+9%',rating:4.6,deals:1890,verified:true,contact:'fruits@motherdairy.in'},
+  {id:9,logo:'🌿',name:'Organic India Ltd',type:'Organic Certified Buyer',category:'processing',crops:['Turmeric','Ginger','Moringa','Basmati'],state:'UP, Uttarakhand, MP',minQty:'5 qtl',offer:'₹12,000/qtl',trend:'+40%',rating:4.9,deals:620,verified:true,contact:'buy@organicindia.com'},
+  {id:10,logo:'🍚',name:'KRBL Ltd (India Gate)',type:'Basmati Rice Processor',category:'grains',crops:['Basmati Rice','Pusa 1121','Sharbati'],state:'Haryana, Punjab, UP',minQty:'200 qtl',offer:'₹4,800/qtl',trend:'+14%',rating:4.8,deals:2340,verified:true,contact:'paddy@krbl.in'},
+  {id:11,logo:'🌶️',name:'Everest Spices',type:'Spice Processing & Export',category:'export',crops:['Red Chilli','Turmeric','Coriander','Cumin'],state:'Rajasthan, Gujarat, AP',minQty:'25 qtl',offer:'₹7,200/qtl',trend:'+28%',rating:4.6,deals:1100,verified:true,contact:'spices@everestmasala.com'},
+  {id:12,logo:'🥑',name:'BigBasket Farm Direct',type:'Online Retail Procurement',category:'fruits',crops:['All Fruits','Exotic Vegetables','Microgreens'],state:'Pan India',minQty:'5 qtl',offer:'₹2,200/qtl',trend:'+6%',rating:4.5,deals:8900,verified:true,contact:'farms@bigbasket.com'},
+  {id:13,logo:'🧅',name:'Jain Irrigation Systems',type:'Agri-Export & Processor',category:'vegetables',crops:['Onion','Banana','Mango','Pomegranate'],state:'Maharashtra, Gujarat',minQty:'80 qtl',offer:'₹1,800/qtl',trend:'+11%',rating:4.7,deals:1560,verified:true,contact:'agri@jains.com'},
+  {id:14,logo:'🍃',name:'Tata Consumer Agri',type:'Tea & Commodity Buyer',category:'processing',crops:['Tea','Coffee','Spices','Pulses'],state:'Assam, Kerala, TN',minQty:'15 qtl',offer:'₹3,600/qtl',trend:'+19%',rating:4.8,deals:970,verified:true,contact:'agri@tataconsumer.com'},
+  {id:15,logo:'🫘',name:'Adani Agri Logistics',type:'Storage & Commodity Trade',category:'grains',crops:['Wheat','Rice','Pulses','Oilseeds'],state:'Gujarat, Maharashtra, MP',minQty:'1000 qtl',offer:'₹2,100/qtl',trend:'+7%',rating:4.4,deals:4200,verified:true,contact:'agri@adani.com'},
+  {id:16,logo:'🥭',name:'Fruitmaster Export House',type:'Tropical Fruit Exporter',category:'export',crops:['Mango','Litchi','Jackfruit','Coconut'],state:'UP, Bihar, Kerala',minQty:'40 qtl',offer:'₹5,500/qtl',trend:'+31%',rating:4.6,deals:530,verified:true,contact:'export@fruitmaster.in'},
+  {id:17,logo:'🌰',name:'Patanjali Ayurved',type:'Herbal & Food Processing',category:'processing',crops:['Amla','Aloe Vera','Wheat','Mustard'],state:'Uttarakhand, UP, HR',minQty:'20 qtl',offer:'₹2,950/qtl',trend:'+16%',rating:4.5,deals:2800,verified:true,contact:'procurement@patanjali.in'},
+  {id:18,logo:'🥦',name:'Zomato Hyperpure',type:'B2B Restaurant Supply',category:'vegetables',crops:['Broccoli','Zucchini','Bell Pepper','Herbs'],state:'Metro Cities',minQty:'2 qtl',offer:'₹4,800/qtl',trend:'+24%',rating:4.7,deals:3100,verified:true,contact:'farms@hyperpure.com'},
+  {id:19,logo:'🫚',name:'Ruchi Soya Industries',type:'Edible Oil Processor',category:'grains',crops:['Soybean','Sunflower','Mustard','Groundnut'],state:'MP, Rajasthan, Gujarat',minQty:'300 qtl',offer:'₹3,200/qtl',trend:'+13%',rating:4.5,deals:1750,verified:true,contact:'procurement@ruchisoya.com'},
+  {id:20,logo:'🍑',name:'National Horticulture Board',type:'Government Export Body',category:'export',crops:['All Fruits','Vegetables','Flowers'],state:'Pan India',minQty:'10 qtl',offer:'Market Rate',trend:'+MSP',rating:4.9,deals:12000,verified:true,contact:'nhb@gov.in'},
+  {id:21,logo:'🧄',name:'Spencers Agri Direct',type:'Retail Chain Procurement',category:'vegetables',crops:['Garlic','Onion','Potato','Ginger'],state:'East India, Metros',minQty:'10 qtl',offer:'₹1,650/qtl',trend:'+4%',rating:4.4,deals:2200,verified:true,contact:'agri@spencers.in'},
+  {id:22,logo:'🌻',name:'Sunpure Foods Pvt Ltd',type:'Sunflower Oil Processor',category:'processing',crops:['Sunflower','Groundnut','Sesame','Castor'],state:'Karnataka, AP, TN',minQty:'200 qtl',offer:'₹4,100/qtl',trend:'+17%',rating:4.6,deals:880,verified:true,contact:'buy@sunpurefoods.com'},
+  {id:23,logo:'🫑',name:'DeHaat Market Connect',type:'Agri-Tech Marketplace',category:'vegetables',crops:['All Crops','Seeds','Vegetables','Grains'],state:'Bihar, UP, Jharkhand',minQty:'1 qtl',offer:'Best Price',trend:'+MSP+',rating:4.8,deals:28000,verified:true,contact:'sell@dehaat.com'},
+  {id:24,logo:'🍊',name:'Ninjacart Direct',type:'Fresh Produce Aggregator',category:'fruits',crops:['Citrus','Pomegranate','Guava','Papaya'],state:'Bangalore, Chennai, Hyderabad',minQty:'3 qtl',offer:'₹3,400/qtl',trend:'+20%',rating:4.7,deals:18000,verified:true,contact:'farms@ninjacart.in'},
+];
+
+const PAGE_SIZE = 8;
+let currentFilter = 'all';
+let currentModal  = null;
+let showAll       = false;
+
+function renderCompanies(filter='all', viewAll=false){
+  const grid = document.getElementById('company-grid');
+  const allFiltered = filter==='all' ? COMPANIES : COMPANIES.filter(c=>c.category===filter);
+  const toShow = viewAll ? allFiltered : allFiltered.slice(0, PAGE_SIZE);
+  const remaining = allFiltered.length - toShow.length;
+
+  grid.innerHTML = toShow.map(c=>`
+    <div class="company-card">
+      <div class="cc-head">
+        <div class="cc-logo">${c.logo}</div>
+        <div>
+          <div class="cc-name">${c.name}</div>
+          <div class="cc-type">${c.type}</div>
+          ${c.verified?'<div class="cc-verified"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Verified Buyer</div>':''}
+        </div>
+      </div>
+      <div class="cc-crops">${c.crops.map(cr=>`<span class="cc-crop-tag">${cr}</span>`).join('')}</div>
+      <div class="cc-meta">
+        <div class="cc-m-item"><div class="cc-m-label">Location</div><div class="cc-m-val">📍 ${c.state}</div></div>
+        <div class="cc-m-item"><div class="cc-m-label">Min Quantity</div><div class="cc-m-val">📦 ${c.minQty}</div></div>
+        <div class="cc-m-item"><div class="cc-m-label">Rating</div><div class="cc-m-val">⭐ ${c.rating}/5</div></div>
+        <div class="cc-m-item"><div class="cc-m-label">Total Deals</div><div class="cc-m-val">🤝 ${c.deals.toLocaleString()}</div></div>
+      </div>
+      <div class="cc-price-tag">💰 Current Offer: ${c.offer} <span class="up">${c.trend}</span></div>
+      <div class="cc-actions">
+        <button class="cc-btn-primary" onclick="openModal(${c.id})">📬 Send Deal Request</button>
+        <button class="cc-btn-sec" onclick="toast('📞 ${c.contact}',3500)">📞 Contact</button>
+      </div>
+    </div>
+  `).join('');
+
+  // View All / Show Less button
+  const existingBtn = document.getElementById('view-all-btn');
+  if(existingBtn) existingBtn.remove();
+
+  if(allFiltered.length > PAGE_SIZE){
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'grid-column:1/-1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 0 4px';
+    btnWrap.innerHTML = `
+      <div style="font-size:.82rem;color:var(--n400);font-weight:500">${viewAll ? '' : `Showing ${toShow.length} of ${allFiltered.length} companies`}</div>
+      <button id="view-all-btn" onclick="toggleViewAll()" style="
+        display:inline-flex;align-items:center;gap:8px;padding:13px 32px;
+        border-radius:99px;border:1.5px solid var(--g300);background:#fff;
+        color:var(--g700);font-size:.88rem;font-weight:700;transition:all .22s;
+        box-shadow:0 2px 12px rgba(22,163,74,.12)">
+        ${viewAll
+          ? `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="18 15 12 9 6 15"/></svg> Show Fewer Companies`
+          : `<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg> View All ${allFiltered.length} Companies`
+        }
+      </button>`;
+    // hover effect
+    btnWrap.querySelector('button').addEventListener('mouseenter', e=>{ e.target.style.background='var(--g600)';e.target.style.color='#fff';e.target.style.borderColor='var(--g600)';e.target.style.boxShadow='0 4px 20px rgba(22,163,74,.3)'; });
+    btnWrap.querySelector('button').addEventListener('mouseleave', e=>{ e.target.style.background='#fff';e.target.style.color='var(--g700)';e.target.style.borderColor='var(--g300)';e.target.style.boxShadow='0 2px 12px rgba(22,163,74,.12)'; });
+    grid.appendChild(btnWrap);
+  }
+}
+
+function toggleViewAll(){
+  showAll = !showAll;
+  renderCompanies(currentFilter, showAll);
+  if(!showAll) document.getElementById('direct-market').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function filterCompanies(cat, btn){
+  currentFilter = cat;
+  showAll = false;
+  document.querySelectorAll('.dmc-tab').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  renderCompanies(cat, false);
+}
+
+function openModal(id){
+  const c = COMPANIES.find(x=>x.id===id);
+  if(!c) return;
+  currentModal = c;
+  document.getElementById('modal-co-logo').textContent = c.logo;
+  document.getElementById('modal-co-name').textContent = c.name;
+  document.getElementById('modal-co-offer').textContent = `Offering ${c.offer} · Min ${c.minQty}`;
+  document.getElementById('contact-modal').classList.add('open');
+}
+function closeModal(){
+  document.getElementById('contact-modal').classList.remove('open');
+}
+async function submitDealRequest(){
+  const name=document.getElementById('m-name').value.trim();
+  const phone=document.getElementById('m-phone').value.trim();
+  if(!name||!phone){toast('Please fill name and phone number');return;}
+  const loc=document.getElementById('m-location').value.trim();
+  const crop=document.getElementById('m-crop').value.trim();
+  const qty=document.getElementById('m-qty').value.trim();
+  const price=document.getElementById('m-price').value.trim();
+  const msg=document.getElementById('m-msg').value.trim();
+  closeModal();
+  toast(`✅ Request sent to ${currentModal.name}! They will contact you within 24 hours.`,4000);
+  try{
+    await api('/api/market/deal-request', 'POST', {
+      name, phone, location: loc, crop, qty, price, message: msg, company: currentModal.name
+    });
+  }catch(e){console.warn('Deal request offline mode:', e);}
+  addDealToFeed(name, currentModal);
+}
+document.getElementById('contact-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// Deal feed
+const DEAL_DATA = [
+  {name:'Suresh K.',loc:'Kolar, KA',crop:'Tomato',qty:'80 qtl',company:'Reliance Fresh',amount:'₹1,74,000',status:'done',emoji:'🍅'},
+  {name:'Priya M.',loc:'Nashik, MH',crop:'Grapes',qty:'120 qtl',company:'Sahyadri Farms',amount:'₹5,04,000',status:'done',emoji:'🍇'},
+  {name:'Ravi S.',loc:'Amritsar, PB',crop:'Wheat',qty:'300 qtl',company:'KRBL Ltd',amount:'₹14,40,000',status:'pend',emoji:'🌾'},
+  {name:'Anita P.',loc:'Guntur, AP',crop:'Red Chilli',qty:'45 qtl',company:'Everest Spices',amount:'₹3,24,000',status:'done',emoji:'🌶️'},
+  {name:'Mohan R.',loc:'Mysuru, KA',crop:'Turmeric',qty:'30 qtl',company:'Organic India',amount:'₹3,60,000',status:'done',emoji:'🌿'},
+];
+function renderDealFeed(data){
+  document.getElementById('deal-feed').innerHTML = data.map(d=>`
+    <div class="deal-item">
+      <div class="deal-farmer-av">${d.emoji}</div>
+      <div class="deal-info">
+        <div class="deal-name">${d.name} · ${d.loc}</div>
+        <div class="deal-detail">${d.crop} · ${d.qty} → ${d.company}</div>
+      </div>
+      <div class="deal-price">
+        <div class="deal-amount">${d.amount}</div>
+        <div class="deal-status ${d.status}">${d.status==='done'?'✅ Completed':'⏳ Pending'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+function addDealToFeed(name, company){
+  DEAL_DATA.unshift({name:name.split(' ')[0]+' F.',loc:'Your Location',crop:'Your Crop',qty:'—',company:company.name,amount:'Negotiating',status:'pend',emoji:'🌾'});
+  renderDealFeed(DEAL_DATA.slice(0,6));
+}
+
+// ═══════════════════════════════════════════════
+// MULTILINGUAL AGRIBOT
+// ═══════════════════════════════════════════════
+
+let currentLang = 'en';
+
+const LANG_META = {
+  en:{name:'English',greet:'Namaste! 🙏 Ask me anything about farming in English.',placeholder:'Ask anything about farming...'},
+  hi:{name:'हिंदी',greet:'नमस्ते! 🙏 मैं AgriBot हूँ। खेती के बारे में कुछ भी पूछें — फसल, बीमारी, मंडी भाव या सरकारी योजनाएँ।',placeholder:'खेती के बारे में पूछें...'},
+  mr:{name:'मराठी',greet:'नमस्कार! 🙏 मी AgriBot आहे। शेतीबद्दल काहीही विचारा — पीक, रोग, बाजार भाव किंवा योजना.',placeholder:'शेतीबद्दल विचारा...'},
+  ta:{name:'தமிழ்',greet:'வணக்கம்! 🙏 நான் AgriBot. விவசாயம் பற்றி எதுவும் கேளுங்கள் — பயிர், நோய், சந்தை விலை அல்லது திட்டங்கள்.',placeholder:'விவசாயம் பற்றி கேளுங்கள்...'},
+  te:{name:'తెలుగు',greet:'నమస్కారం! 🙏 నేను AgriBot. వ్యవసాయం గురించి ఏదైనా అడగండి — పంట, వ్యాధి, మార్కెట్ ధర లేదా పథకాలు.',placeholder:'వ్యవసాయం గురించి అడగండి...'},
+  kn:{name:'ಕನ್ನಡ',greet:'ನಮಸ್ಕಾರ! 🙏 ನಾನು AgriBot. ಕೃಷಿಯ ಬಗ್ಗೆ ಏನಾದರೂ ಕೇಳಿ — ಬೆಳೆ, ರೋಗ, ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಅಥವಾ ಯೋಜನೆಗಳು.',placeholder:'ಕೃಷಿ ಬಗ್ಗೆ ಕೇಳಿ...'},
+  pa:{name:'ਪੰਜਾਬੀ',greet:'ਸਤ ਸ੍ਰੀ ਅਕਾਲ! 🙏 ਮੈਂ AgriBot ਹਾਂ। ਖੇਤੀ ਬਾਰੇ ਕੁਝ ਵੀ ਪੁੱਛੋ — ਫਸਲ, ਬਿਮਾਰੀ, ਮੰਡੀ ਭਾਅ ਜਾਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ.',placeholder:'ਖੇਤੀ ਬਾਰੇ ਪੁੱਛੋ...'},
+  gu:{name:'ગુજરાતી',greet:'નમસ્તે! 🙏 હું AgriBot છું. ખેતી વિશે કંઈ પણ પૂછો — પાક, રોગ, બજાર ભાવ અથવા સરકારી યોજનાઓ.',placeholder:'ખેતી વિશે પૂછો...'},
+  bn:{name:'বাংলা',greet:'নমস্কার! 🙏 আমি AgriBot। কৃষি সম্পর্কে যেকোনো প্রশ্ন করুন — ফসল, রোগ, বাজারদর বা সরকারি প্রকল্প।',placeholder:'কৃষি সম্পর্কে জিজ্ঞেস করুন...'},
+  ml:{name:'മലയാളം',greet:'നമസ്കാരം! 🙏 ഞാൻ AgriBot ആണ്. കൃഷിയെ കുറിച്ച് എന്തും ചോദിക്കൂ — വിള, രോഗം, വിപണിവില അല്ലെങ്കിൽ സർക്കാർ പദ്ധതികൾ.',placeholder:'കൃഷിയെ കുറിച്ച് ചോദിക്കൂ...'},
+  or:{name:'ଓଡ଼ିଆ',greet:'ନମସ୍କାର! 🙏 ମୁଁ AgriBot। କୃଷି ବିଷୟରେ ଯେ କୌଣସି ପ୍ରଶ୍ନ ପଚାରନ୍ତୁ।',placeholder:'କୃଷି ବିଷୟରେ ପଚାରନ୍ତୁ...'},
+  as:{name:'অসমীয়া',greet:'নমস্কাৰ! 🙏 মই AgriBot। কৃষিৰ বিষয়ে যিকোনো প্ৰশ্ন সোধক।',placeholder:'কৃষিৰ বিষয়ে সোধক...'},
+};
+
+const LANG_SUGS = {
+  hi:['मानसून में कौन सी फसल अच्छी है','धान का ब्लाइट कैसे ठीक करें','आज टमाटर का भाव क्या है','बिना दलाल के कंपनी को कैसे बेचें','PM-KISAN योजना की जानकारी'],
+  mr:['पावसाळ्यात कोणती पिके चांगली','भात ब्लाइट कसा बरा करावा','आज टोमॅटोचा भाव काय','दलालाशिवाय कंपनीला कसे विकावे','PM-KISAN योजना माहिती'],
+  ta:['மழைக்காலத்தில் சிறந்த பயிர்கள்','நெல் கருகல் நோய் எவ்வாறு குணப்படுத்துவது','இன்று தக்காளி விலை என்ன','தரகர் இல்லாமல் நேரடியாக விற்பது எப்படி','PM-KISAN திட்ட விவரங்கள்'],
+  te:['వర్షాకాలంలో మంచి పంటలు','వరి అంటువ్యాధి ఎలా నయం చేయాలి','నేడు టమాటా ధర ఎంత','దళారీ లేకుండా నేరుగా అమ్మడం ఎలా','PM-KISAN పథకం వివరాలు'],
+  kn:['ಮಳೆಗಾಲದಲ್ಲಿ ಉತ್ತಮ ಬೆಳೆಗಳು','ಭತ್ತದ ಬ್ಲೈಟ್ ಹೇಗೆ ಗುಣಪಡಿಸುವುದು','ಇಂದು ಟೊಮೇಟೊ ಬೆಲೆ ಎಷ್ಟು','ದಲ್ಲಾಳಿ ಇಲ್ಲದೆ ನೇರ ಮಾರಾಟ ಹೇಗೆ','PM-KISAN ಯೋಜನೆ ವಿವರ'],
+  pa:['ਮਾਨਸੂਨ ਵਿੱਚ ਕਿਹੜੀਆਂ ਫਸਲਾਂ ਵਧੀਆ','ਝੋਨੇ ਦੀ ਬਿਮਾਰੀ ਕਿਵੇਂ ਠੀਕ ਕਰੀਏ','ਅੱਜ ਟਮਾਟਰ ਦਾ ਭਾਅ ਕੀ','ਵਿਚੋਲੇ ਤੋਂ ਬਿਨਾਂ ਕੰਪਨੀ ਨੂੰ ਕਿਵੇਂ ਵੇਚੀਏ','PM-KISAN ਸਕੀਮ ਜਾਣਕਾਰੀ'],
+  gu:['ચોમાસામાં કઈ ફસલ સારી','ડાંગરનો રોગ કેવી રીતે ઠીક કરવો','આજ ટામેટાનો ભાવ શું','દલાલ વગર સીધું કંપનીને વેચવું','PM-KISAN યોજના માહિતી'],
+  bn:['বর্ষায় কোন ফসল ভালো','ধানের ব্লাইট কীভাবে সারাবো','আজ টমেটোর দাম কত','দালাল ছাড়া সরাসরি কোম্পানিকে বিক্রি','PM-KISAN প্রকল্পের তথ্য'],
+};
+
+function setLang(lang, btn){
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('act'));
+  btn.classList.add('act');
+  const meta = LANG_META[lang];
+  document.getElementById('chat-inp').placeholder = meta.placeholder;
+  document.getElementById('bot-lang-status').textContent = meta.name + ' — Language selected';
+  // Add a greeting in the new language
+  const msgs = document.getElementById('chat-msgs');
+  const langPill = `<div class="lang-pill"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 8l6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg> ${meta.name}</div>`;
+  msgs.innerHTML += `<div class="msg"><div class="msg-av av-bot"><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 21v1m8-1v1M3 8V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M12 3v5"/><circle cx="9" cy="14" r="1"/><circle cx="15" cy="14" r="1"/><path d="M9 17h6"/></svg></div><div class="bubble b-bot">${langPill}${meta.greet}</div></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  // Update suggestion buttons
+  const sugs = LANG_SUGS[lang];
+  if(sugs){
+    const sugBtns = document.querySelectorAll('.csug');
+    const labels = ['🌧️ ','🍃 ','🍅 ','🏭 ','🏛️ '];
+    sugBtns.forEach((b,i)=>{if(sugs[i]){b.onclick=()=>sendSug(sugs[i]);b.textContent=labels[i]+(sugs[i].substring(0,18)+(sugs[i].length>18?'…':''));}});
+  }
+}
+
+// ═══════════════════════════════════════════════
+// VOICE INPUT — Speech-to-Text (all 12 languages)
+// ═══════════════════════════════════════════════
+const LANG_CODES = {
+  en:'en-IN', hi:'hi-IN', mr:'mr-IN', ta:'ta-IN',
+  te:'te-IN', kn:'kn-IN', pa:'pa-Guru-IN', gu:'gu-IN',
+  bn:'bn-IN',  ml:'ml-IN', or:'or-IN',     as:'as-IN'
+};
+
+let recognition = null;
+let isListening  = false;
+
+function toggleVoice(){
+  const btn = document.getElementById('voice-btn');
+  const SRClass = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SRClass){
+    toast('🎤 Voice needs Chrome / Edge. Please use those browsers.');
+    return;
+  }
+  if(isListening){
+    recognition.stop();
+    return;
+  }
+  recognition = new SRClass();
+  recognition.lang = LANG_CODES[currentLang] || 'hi-IN';
+  recognition.continuous      = false;
+  recognition.interimResults  = true;
+  recognition.maxAlternatives = 1;
+
+  // Live interim transcript shown in input
+  recognition.onresult = e => {
+    let interim='', final='';
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    document.getElementById('chat-inp').value = final || interim;
+    if(final){ recognition.stop(); sendChat(); }
+  };
+  recognition.onstart = ()=>{
+    isListening = true;
+    btn.classList.add('listening');
+    toast('🎤 Listening in '+LANG_META[currentLang].name+'… speak now',3000);
+  };
+  recognition.onend = ()=>{
+    isListening = false;
+    btn.classList.remove('listening');
+  };
+  recognition.onerror = e=>{
+    isListening = false;
+    btn.classList.remove('listening');
+    const msgs = {
+      'no-speech'    : 'No speech detected. Please try again.',
+      'not-allowed'  : 'Microphone permission denied. Allow it in browser settings.',
+      'audio-capture': 'No microphone found.',
+      'network'      : 'Network error during voice recognition.'
+    };
+    toast('⚠️ '+(msgs[e.error]||'Voice error: '+e.error));
+  };
+  recognition.start();
+}
+
+// ═══════════════════════════════════════════════
+// AI VOICE OUTPUT — Text-to-Speech (all 12 languages)
+// Uses Web Speech API SpeechSynthesis — works in all browsers
+// ═══════════════════════════════════════════════
+const TTS_LANG_CODES = {
+  en:'en-IN', hi:'hi-IN', mr:'mr-IN', ta:'ta-IN',
+  te:'te-IN', kn:'kn-IN', pa:'pa-IN', gu:'gu-IN',
+  bn:'bn-IN',  ml:'ml-IN', or:'en-IN', as:'bn-IN'
+};
+
+let ttsEnabled = true;   // user can toggle
+let isSpeaking = false;
+let currentUtterance = null;
+
+function speakText(text, lang){
+  if(!ttsEnabled) return;
+  if(!window.speechSynthesis){ return; }
+  // Strip markdown-like symbols for cleaner speech
+  const clean = text
+    .replace(/[*_~`#]/g,'')
+    .replace(/https?:\/\/\S+/g,'')
+    .replace(/₹/g,'rupees ')
+    .replace(/qtl/g,'quintal')
+    .replace(/\n+/g,'. ')
+    .substring(0,500);   // cap at 500 chars to avoid endless speech
+
+  window.speechSynthesis.cancel();   // stop any ongoing speech
+  const utter = new SpeechSynthesisUtterance(clean);
+  utter.lang  = TTS_LANG_CODES[lang] || 'hi-IN';
+  utter.rate  = 0.92;
+  utter.pitch = 1.05;
+  utter.volume = 1;
+
+  // Pick best available voice for the language
+  const voices = window.speechSynthesis.getVoices();
+  const match  = voices.find(v => v.lang.startsWith(utter.lang.split('-')[0]+'_') || v.lang === utter.lang)
+               || voices.find(v => v.lang.startsWith('hi'))   // Hindi fallback
+               || voices[0];
+  if(match) utter.voice = match;
+
+  utter.onstart = ()=>{ isSpeaking=true; updateSpeakBtn(true); };
+  utter.onend   = ()=>{ isSpeaking=false; updateSpeakBtn(false); };
+  utter.onerror = ()=>{ isSpeaking=false; updateSpeakBtn(false); };
+
+  currentUtterance = utter;
+  window.speechSynthesis.speak(utter);
+}
+
+function stopSpeaking(){
+  window.speechSynthesis?.cancel();
+  isSpeaking = false;
+  updateSpeakBtn(false);
+}
+
+function updateSpeakBtn(speaking){
+  document.querySelectorAll('.msg-speak-btn').forEach(b=>{
+    b.style.opacity = speaking ? '0.4' : '1';
+  });
+}
+
+function toggleTTS(){
+  ttsEnabled = !ttsEnabled;
+  const btn = document.getElementById('tts-toggle');
+  if(btn){
+    btn.title = ttsEnabled ? 'AI Voice ON — click to mute' : 'AI Voice OFF — click to enable';
+    btn.style.color = ttsEnabled ? 'var(--g600)' : 'var(--n400)';
+    btn.innerHTML = ttsEnabled ? SPEAK_ICON_ON : SPEAK_ICON_OFF;
+  }
+  if(!ttsEnabled) stopSpeaking();
+  toast(ttsEnabled ? '🔊 AI voice enabled' : '🔇 AI voice muted', 1800);
+}
+
+const SPEAK_ICON_ON  = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+const SPEAK_ICON_OFF = `<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
+
+// Inject TTS toggle button into chatbot top-bar after DOM ready
+function injectTTSToggle(){
+  const top = document.querySelector('.chat-top');
+  if(!top || document.getElementById('tts-toggle')) return;
+  const btn = document.createElement('button');
+  btn.id = 'tts-toggle';
+  btn.title = 'AI Voice ON — click to mute';
+  btn.style.cssText = 'display:flex;align-items:center;gap:5px;padding:6px 12px;border-radius:99px;background:var(--g50);border:1.5px solid var(--g200);color:var(--g600);font-size:.72rem;font-weight:700;cursor:pointer;transition:all .2s;margin-left:8px';
+  btn.innerHTML = SPEAK_ICON_ON + '<span>AI Voice</span>';
+  btn.onclick = toggleTTS;
+  const badge = top.querySelector('.badge');
+  if(badge) badge.parentNode.insertBefore(btn, badge.nextSibling);
+  else top.appendChild(btn);
+}
+
+// ═══════════════════════════════════════════════
+// UPGRADED sendChat — with language context + TTS
+// ═══════════════════════════════════════════════
+async function sendChat(){
+  const inp = document.getElementById('chat-inp');
+  const msg = inp.value.trim();
+  if(!msg) return;
+  inp.value = '';
+  document.getElementById('chat-sugs').style.display = 'none';
+  addMsg(msg, 'user');
+  const tid = addTyping();
+  try{
+    const d = await api('/api/chatbot','POST',{
+      message       : msg,
+      language      : currentLang,
+      language_name : LANG_META[currentLang].name
+    });
+    removeTyping(tid);
+    addMsg(d.reply, 'bot', true);   // true = auto-speak
+  } catch(e){
+    removeTyping(tid);
+    addMsg('Sorry, connection error. Is Flask running?', 'bot');
+  }
+}
+
+// ── addMsg upgraded — speak button on every bot bubble ──
+function addMsg(text, role, autoSpeak=false){
+  const box = document.getElementById('chat-msgs');
+  const isBot = role === 'bot';
+  const speakBtn = isBot ? `
+    <button class="msg-speak-btn" title="Read aloud" onclick="speakText(this.closest('.msg').querySelector('.bubble').textContent,'${currentLang}')" style="display:inline-flex;align-items:center;gap:4px;margin-top:7px;padding:4px 10px;border-radius:99px;background:var(--g50);border:1px solid var(--g200);font-size:.68rem;font-weight:700;color:var(--g600);cursor:pointer;transition:all .18s">
+      ${SPEAK_ICON_ON}<span>Read aloud</span>
+    </button>` : '';
+  box.innerHTML += `
+    <div class="msg${isBot?'':' user'}">
+      <div class="msg-av ${isBot?'av-bot':'av-user'}">${isBot?BOTICON:USRICON}</div>
+      <div style="display:flex;flex-direction:column;align-items:${isBot?'flex-start':'flex-end'}">
+        <div class="bubble ${isBot?'b-bot':'b-user'}">${text}</div>
+        ${speakBtn}
+      </div>
+    </div>`;
+  box.scrollTop = box.scrollHeight;
+  if(isBot && autoSpeak) speakText(text, currentLang);
+}
+
+function sendSug(msg){ document.getElementById('chat-inp').value=msg; sendChat(); }
+
+// Load voices when available (needed for some browsers)
+if(window.speechSynthesis){
+  window.speechSynthesis.onvoiceschanged = ()=>{ window.speechSynthesis.getVoices(); };
+}
+
+// ═══════════════════════════════════════════════
+// HERO SLIDER
+// ═══════════════════════════════════════════════
+let heroSlide = 0;
+const heroSlides = document.querySelectorAll('.hero-slide-item');
+const heroDots   = document.querySelectorAll('.hero-dot');
+function moveHeroSlide(dir){
+  heroSlides[heroSlide].classList.remove('act');
+  heroDots[heroSlide].classList.remove('act');
+  heroSlide = (heroSlide + dir + heroSlides.length) % heroSlides.length;
+  heroSlides[heroSlide].classList.add('act');
+  heroDots[heroSlide].classList.add('act');
+}
+setInterval(()=>moveHeroSlide(1), 5500);
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+(async()=>{
+  await Promise.all([
+    loadMarket('all'),
+    loadCal('Rice', null),
+    loadCal2('Rice', null),
+    loadSchemes(),
+    loadDiseaseLib()
+  ]);
+  renderCompanies('all', false);
+  renderDealFeed(DEAL_DATA);
+  injectTTSToggle();
+})();
+</script>
+</body>
+</html>
