@@ -1,5 +1,4 @@
 import os
-import joblib
 import numpy as np
 from pathlib import Path
 from backend.config import Config
@@ -82,18 +81,10 @@ class CropRecommendationModel:
         self._load_or_init_model()
 
     def _load_or_init_model(self):
-        if self.model_path.exists():
-            try:
-                bundle = joblib.load(self.model_path)
-                self.model = bundle.get("model")
-                self.label_encoder = bundle.get("label_encoder")
-                self.scaler = bundle.get("scaler")
-                print(f"[CropRecommendation] Loaded trained ML model from {self.model_path}")
-                return
-            except Exception as e:
-                print(f"[CropRecommendation] Error loading serialized model: {e}")
-        
-        print("[CropRecommendation] Operating with agronomic classification engine.")
+        self.model = None
+        self.label_encoder = None
+        self.scaler = None
+        print("[CropRecommendation] Operating with dynamic agronomic classification engine.")
 
     def _train_and_save_initial_model(self):
         """Train a high-accuracy Random Forest on representative Indian crop datasets"""

@@ -48,7 +48,11 @@ def create_app():
         ]
         for p in candidates:
             if p.is_file():
-                return send_from_directory(str(p.parent), p.name)
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+                except Exception as e:
+                    return f"Error reading index.html: {e}", 500
         return "<h1>AgriSense</h1><p>index.html not found</p>", 200
 
     @app.route("/login.html")
@@ -60,7 +64,11 @@ def create_app():
         ]
         for p in candidates:
             if p.is_file():
-                return send_from_directory(str(p.parent), p.name)
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+                except Exception as e:
+                    return f"Error reading login.html: {e}", 500
         return "<h1>AgriSense</h1><p>login.html not found</p>", 200
 
     @app.route("/frontend/<path:filename>")
@@ -73,7 +81,12 @@ def create_app():
         for c_dir in candidates:
             target = c_dir / filename
             if target.is_file():
-                return send_from_directory(str(target.parent), target.name)
+                try:
+                    content_type = "application/javascript" if filename.endswith(".js") else "text/css" if filename.endswith(".css") else "text/plain"
+                    with open(target, "r", encoding="utf-8") as f:
+                        return f.read(), 200, {"Content-Type": f"{content_type}; charset=utf-8"}
+                except Exception as e:
+                    return f"Error reading asset {filename}: {e}", 500
         return f"Asset {filename} not found", 404
 
     # --------------------------------------------------------------------------
