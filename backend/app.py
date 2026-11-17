@@ -39,20 +39,42 @@ def create_app():
     # Frontend Static & HTML Serving Routes
     # --------------------------------------------------------------------------
     @app.route("/")
-    def serve_index():
-        return send_from_directory(str(ROOT_DIR), "index.html")
-
     @app.route("/index.html")
-    def serve_index_html():
-        return send_from_directory(str(ROOT_DIR), "index.html")
+    def serve_index():
+        candidates = [
+            ROOT_DIR / "index.html",
+            Path(os.getcwd()) / "index.html",
+            Path("/var/task") / "index.html"
+        ]
+        for p in candidates:
+            if p.is_file():
+                return send_from_directory(str(p.parent), p.name)
+        return "<h1>AgriSense</h1><p>index.html not found</p>", 200
 
     @app.route("/login.html")
     def serve_login():
-        return send_from_directory(str(ROOT_DIR), "login.html")
+        candidates = [
+            ROOT_DIR / "login.html",
+            Path(os.getcwd()) / "login.html",
+            Path("/var/task") / "login.html"
+        ]
+        for p in candidates:
+            if p.is_file():
+                return send_from_directory(str(p.parent), p.name)
+        return "<h1>AgriSense</h1><p>login.html not found</p>", 200
 
     @app.route("/frontend/<path:filename>")
     def serve_frontend_assets(filename):
-        return send_from_directory(str(ROOT_DIR / "frontend"), filename)
+        candidates = [
+            ROOT_DIR / "frontend",
+            Path(os.getcwd()) / "frontend",
+            Path("/var/task") / "frontend"
+        ]
+        for c_dir in candidates:
+            target = c_dir / filename
+            if target.is_file():
+                return send_from_directory(str(target.parent), target.name)
+        return f"Asset {filename} not found", 404
 
     # --------------------------------------------------------------------------
     # Health Check API

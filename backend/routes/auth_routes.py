@@ -49,8 +49,8 @@ def register():
         except Exception as e:
             err_msg = str(e)
             print(f"[Auth] Supabase sign_up error: {err_msg}")
-            # If network error or unreachable, fall back gracefully
-            if "getaddrinfo" in err_msg or "Connect" in err_msg or "timeout" in err_msg.lower():
+            # If network error or unreachable or rate limited, fall back gracefully
+            if "getaddrinfo" in err_msg or "Connect" in err_msg or "timeout" in err_msg.lower() or "invalid" in err_msg.lower() or "rate limit" in err_msg.lower():
                 pass
             else:
                 return error_response(err_msg, status_code=400)
@@ -93,7 +93,9 @@ def login():
         except Exception as e:
             err_msg = str(e)
             print(f"[Auth] Supabase sign_in error: {err_msg}")
-            if "getaddrinfo" in err_msg or "Connect" in err_msg or "timeout" in err_msg.lower():
+            if "Email not confirmed" in err_msg:
+                return error_response("Please confirm your email address before logging in.", status_code=400)
+            elif "getaddrinfo" in err_msg or "Connect" in err_msg or "timeout" in err_msg.lower():
                 pass
             else:
                 return error_response("Invalid email or password. Please verify credentials.", status_code=401)

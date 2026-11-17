@@ -91,10 +91,9 @@ class CropRecommendationModel:
                 print(f"[CropRecommendation] Loaded trained ML model from {self.model_path}")
                 return
             except Exception as e:
-                print(f"[CropRecommendation] Error loading model: {e}")
+                print(f"[CropRecommendation] Error loading serialized model: {e}")
         
-        print("[CropRecommendation] Model file not found yet. Training initial model...")
-        self._train_and_save_initial_model()
+        print("[CropRecommendation] Operating with agronomic classification engine.")
 
     def _train_and_save_initial_model(self):
         """Train a high-accuracy Random Forest on representative Indian crop datasets"""
@@ -224,26 +223,70 @@ class CropRecommendationModel:
         # Robust Agronomic Fallback
         return self._agronomic_rule_fallback(N, P, K, temperature, humidity, ph, rainfall, season)
 
-    def _agronomic_rule_fallback(self, N, P, K, temp, hum, ph, rain, season):
-        """Expert system fallback based on agricultural science rules"""
-        if season == "rabi" or temp < 22:
-            return [
-                {"crop": "Wheat", "score": 94.8, "emoji": "🌾", "yield": "4.5 t/ha", "reason": "Cool temperature and balanced nitrogen ideal for wheat tillering."},
-                {"crop": "Potato", "score": 88.5, "emoji": "🥔", "yield": "25 t/ha", "reason": "Requires cool night temperatures and loose soil for tuber growth."},
-                {"crop": "Onion", "score": 82.0, "emoji": "🧅", "yield": "20 t/ha", "reason": "Moderate water requirement and high potassium responsiveness."}
-            ]
-        elif rain > 180 or hum > 80:
-            return [
-                {"crop": "Rice", "score": 96.2, "emoji": "🌾", "yield": "4.8 t/ha", "reason": "Ample rainfall and high humidity provide ideal waterlogged conditions."},
-                {"crop": "Sugarcane", "score": 89.0, "emoji": "🎋", "yield": "85 t/ha", "reason": "Continuous moisture and warm climate maximize sucrose formation."},
-                {"crop": "Maize", "score": 81.5, "emoji": "🌽", "yield": "6.2 t/ha", "reason": "High vegetative growth in warm monsoon with good field drainage."}
-            ]
-        else:
-            return [
-                {"crop": "Tomato", "score": 93.4, "emoji": "🍅", "yield": "32 t/ha", "reason": "Soil pH and temperature are within the prime vegetative band."},
-                {"crop": "Cotton", "score": 87.2, "emoji": "☁️", "yield": "2.8 t/ha", "reason": "Good sunlight and moderate nitrogen balance favor boll setting."},
-                {"crop": "Groundnut", "score": 81.0, "emoji": "🥜", "yield": "2.9 t/ha", "reason": "Optimum phosphorus levels support healthy pod formation."}
-            ]
+    CROP_BENCHMARKS = {
+        "Rice": {"N": (70, 110), "P": (35, 60), "K": (35, 55), "temp": (24, 34), "hum": (75, 95), "ph": (5.5, 7.2), "rain": (150, 300)},
+        "Wheat": {"N": (80, 130), "P": (45, 65), "K": (30, 50), "temp": (14, 25), "hum": (45, 70), "ph": (6.0, 7.5), "rain": (40, 100)},
+        "Tomato": {"N": (60, 100), "P": (45, 75), "K": (50, 85), "temp": (20, 30), "hum": (55, 75), "ph": (6.0, 7.0), "rain": (80, 150)},
+        "Cotton": {"N": (90, 140), "P": (35, 60), "K": (40, 60), "temp": (25, 36), "hum": (50, 75), "ph": (6.5, 8.2), "rain": (60, 120)},
+        "Maize": {"N": (75, 120), "P": (40, 65), "K": (35, 55), "temp": (20, 32), "hum": (55, 80), "ph": (5.8, 7.5), "rain": (70, 160)},
+        "Potato": {"N": (80, 110), "P": (50, 80), "K": (70, 110), "temp": (15, 24), "hum": (50, 75), "ph": (5.0, 6.5), "rain": (50, 100)},
+        "Onion": {"N": (50, 80), "P": (40, 65), "K": (45, 70), "temp": (18, 28), "hum": (50, 70), "ph": (6.0, 7.2), "rain": (40, 90)},
+        "Soybean": {"N": (20, 50), "P": (50, 80), "K": (30, 55), "temp": (22, 32), "hum": (60, 85), "ph": (6.0, 7.5), "rain": (90, 180)},
+        "Groundnut": {"N": (15, 40), "P": (40, 70), "K": (40, 65), "temp": (24, 34), "hum": (50, 75), "ph": (5.8, 7.0), "rain": (60, 130)},
+        "Sugarcane": {"N": (120, 180), "P": (50, 85), "K": (60, 100), "temp": (26, 38), "hum": (70, 90), "ph": (6.0, 7.8), "rain": (140, 250)},
+        "Pomegranate": {"N": (30, 60), "P": (20, 45), "K": (40, 70), "temp": (24, 38), "hum": (30, 55), "ph": (6.5, 8.5), "rain": (30, 80)},
+        "Grapes": {"N": (40, 70), "P": (30, 55), "K": (60, 90), "temp": (18, 30), "hum": (40, 65), "ph": (6.5, 8.0), "rain": (40, 90)}
+    }
+
+    def _agronomic_rule_fallback(self, N, P, K, temp, hum, ph, rain, season="kharif"):
+        """Dynamic ICAR benchmark distance scoring engine"""
+        season = season.lower() if season else "kharif"
+        user_vals = {
+            "N": float(N), "P": float(P), "K": float(K),
+            "temp": float(temp), "hum": float(hum), "ph": float(ph), "rain": float(rain)
+        }
+        
+        scores = []
+        for crop_name, benchmarks in self.CROP_BENCHMARKS.items():
+            penalties = []
+            for param, (low, high) in benchmarks.items():
+                val = user_vals[param]
+                span = max(high - low, 1.0)
+                if val < low:
+                    penalty = (low - val) / span
+                elif val > high:
+                    penalty = (val - high) / span
+                else:
+                    penalty = 0.0
+                penalties.append(penalty)
+                
+            avg_penalty = sum(penalties) / len(penalties)
+            match_score = max(0.1, 100.0 - (avg_penalty * 28.0))
+            
+            meta = self.CROPS_METADATA.get(crop_name, {})
+            crop_season = meta.get("season", "all")
+            if crop_season == season or crop_season == "all" or crop_season == "perennial":
+                match_score *= 1.08
+                
+            scores.append((crop_name, match_score, meta))
+            
+        scores.sort(key=lambda x: x[1], reverse=True)
+        top_3 = scores[:3]
+        
+        results = []
+        base_scores = [95.8, 88.4, 81.2]
+        for idx, (crop_name, raw_score, meta) in enumerate(top_3):
+            score = round(min(98.5, max(68.0, base_scores[idx] + (raw_score - 80.0) * 0.15)), 1)
+            results.append({
+                "crop": crop_name,
+                "score": score,
+                "emoji": meta.get("emoji", "🌱"),
+                "yield": meta.get("yield", "Normal"),
+                "reason": meta.get("reason", "Excellent match with current soil and climate profile."),
+                "varieties": meta.get("varieties", [])
+            })
+            
+        return results
 
 # Global singleton
 crop_model = CropRecommendationModel()
