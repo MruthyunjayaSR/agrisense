@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AgriSense — Sign In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="frontend/js/supabase-client.js"></script>
+<style>
+:root{
+  --g50:#f0fdf4;--g100:#dcfce7;--g200:#bbf7d0;--g300:#86efac;--g400:#4ade80;
+  --g500:#22c55e;--g600:#16a34a;--g700:#15803d;--g800:#166534;
+  --n0:#fff;--n50:#f8fafc;--n100:#f1f5f9;--n200:#e2e8f0;--n300:#cbd5e1;
+  --n400:#94a3b8;--n500:#64748b;--n600:#475569;--n700:#334155;--n800:#1e293b;--n900:#0f172a;
+  --red:#ef4444;--amber:#f59e0b;
+  --sh2:0 4px 16px rgba(0,0,0,.08),0 2px 6px rgba(0,0,0,.04);
+  --sh3:0 12px 40px rgba(0,0,0,.1),0 4px 12px rgba(0,0,0,.05);
+  --shg:0 8px 32px rgba(34,197,94,.25);
+  --r:8px;--r2:12px;--r3:16px;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{height:100%;scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;min-height:100vh;display:flex;background:#0f172a;color:var(--n900);-webkit-font-smoothing:antialiased;overflow:hidden;cursor:none}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:none;border:none;outline:none;background:none}
+input{font-family:inherit;outline:none}
+
+/* CUSTOM CURSOR */
+.cur{position:fixed;top:0;left:0;pointer-events:none;z-index:9999}
+.cur-d{width:8px;height:8px;background:var(--g500);border-radius:50%;transform:translate(-50%,-50%);mix-blend-mode:screen}
+.cur-r{width:34px;height:34px;border:1.5px solid rgba(34,197,94,.45);border-radius:50%;transform:translate(-50%,-50%);transition:all .16s cubic-bezier(.16,1,.3,1);opacity:.6}
+
+/* LEFT PANEL — full-screen farm bg */
+.left-panel{
+  flex:1;position:relative;overflow:hidden;display:flex;flex-direction:column;
+  justify-content:space-between;padding:40px 48px;
+}
+.left-panel::before{
+  content:'';position:absolute;inset:0;
+  background-image:url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1400&q=90&fit=crop');
+  background-size:cover;background-position:center;
+  animation:kzoom 16s ease-in-out infinite alternate;
+}
+@keyframes kzoom{0%{transform:scale(1)}100%{transform:scale(1.06)}}
+.left-panel::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(15,23,42,.82) 0%,rgba(15,23,42,.5) 50%,rgba(21,128,61,.35) 100%);
+}
+.lp-top,.lp-bottom{position:relative;z-index:2}
+
+/* Logo */
+.logo{display:flex;align-items:center;gap:10px}
+.logo-ic{width:38px;height:38px;background:linear-gradient(135deg,var(--g500),var(--g700));border-radius:var(--r2);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(34,197,94,.4)}
+.logo-nm{font-size:1.2rem;font-weight:800;letter-spacing:-.04em;color:#fff}
+.logo-nm span{color:#4ade80}
+
+/* Left hero copy */
+.lp-hero{margin-top:auto;margin-bottom:0;padding:60px 0 0}
+.lp-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);font-size:.72rem;font-weight:700;color:rgba(255,255,255,.85);letter-spacing:.1em;text-transform:uppercase;margin-bottom:20px;backdrop-filter:blur(8px)}
+.ey-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pdot 2s ease-in-out infinite}
+@keyframes pdot{0%,100%{opacity:1}50%{opacity:.3}}
+.lp-h{font-size:clamp(2rem,3.5vw,3.2rem);font-weight:800;letter-spacing:-.05em;line-height:1.06;color:#fff;margin-bottom:18px;text-shadow:0 2px 20px rgba(0,0,0,.4)}
+.lp-h em{font-family:'Instrument Serif',serif;font-style:italic;font-weight:400;color:#4ade80;display:block}
+.lp-sub{font-size:.96rem;line-height:1.72;color:rgba(255,255,255,.65);max-width:420px;margin-bottom:36px}
+
+/* Stats strip */
+.lp-stats{display:flex;gap:32px;flex-wrap:wrap}
+.lp-stat{display:flex;flex-direction:column;gap:2px}
+.lp-stat-n{font-size:1.6rem;font-weight:800;letter-spacing:-.05em;color:#4ade80;line-height:1}
+.lp-stat-l{font-size:.7rem;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+
+/* Testimonial card */
+.lp-quote{margin-top:40px;padding:20px 24px;background:rgba(255,255,255,.08);backdrop-filter:blur(16px);border-radius:var(--r3);border:1px solid rgba(255,255,255,.14);max-width:460px}
+.lp-q-text{font-size:.9rem;line-height:1.65;color:rgba(255,255,255,.8);margin-bottom:14px;font-style:italic}
+.lp-q-author{display:flex;align-items:center;gap:10px}
+.lp-q-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--g500),var(--g700));display:flex;align-items:center;justify-content:center;font-size:.85rem;color:#fff;font-weight:700;flex-shrink:0}
+.lp-q-name{font-size:.8rem;font-weight:700;color:#fff}
+.lp-q-role{font-size:.7rem;color:rgba(255,255,255,.45)}
+
+/* RIGHT PANEL — login form */
+.right-panel{
+  width:480px;flex-shrink:0;background:#fff;display:flex;flex-direction:column;
+  justify-content:center;padding:52px 48px;overflow-y:auto;position:relative;
+}
+.rp-header{margin-bottom:36px}
+.rp-title{font-size:1.75rem;font-weight:800;letter-spacing:-.05em;color:var(--n900);margin-bottom:8px}
+.rp-sub{font-size:.9rem;color:var(--n500);line-height:1.6}
+.rp-sub a{color:var(--g600);font-weight:600}
+.rp-sub a:hover{text-decoration:underline}
+
+/* Tabs */
+.auth-tabs{display:flex;gap:4px;background:var(--n100);border-radius:var(--r2);padding:4px;margin-bottom:32px}
+.auth-tab{flex:1;padding:9px;border-radius:var(--r);font-size:.85rem;font-weight:600;color:var(--n500);transition:all .2s;text-align:center}
+.auth-tab.act{background:#fff;color:var(--n900);box-shadow:var(--sh2)}
+
+/* Form */
+.auth-form{display:flex;flex-direction:column;gap:18px}
+.auth-form.hidden{display:none}
+.field{display:flex;flex-direction:column;gap:6px}
+.flbl{font-size:.78rem;font-weight:700;color:var(--n700);letter-spacing:.02em}
+.finp-wrap{position:relative}
+.finp{
+  width:100%;padding:12px 16px;border-radius:var(--r2);
+  border:1.5px solid var(--n200);font-size:.9rem;color:var(--n900);
+  background:var(--n50);transition:all .2s;
+}
+.finp:focus{border-color:var(--g400);background:#fff;box-shadow:0 0 0 3px rgba(74,222,128,.15)}
+.finp.error{border-color:var(--red);background:#fff5f5}
+.finp-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--n400);pointer-events:none}
+.finp.has-icon{padding-left:40px}
+.finp-eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--n400);cursor:none;padding:4px;transition:color .18s}
+.finp-eye:hover{color:var(--n700)}
+.field-err{font-size:.75rem;color:var(--red);display:none}
+.field-err.show{display:block}
+
+/* Name row (for register) */
+.name-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* Forgot */
+.forgot-row{display:flex;justify-content:flex-end;margin-top:-8px}
+.forgot-lnk{font-size:.8rem;color:var(--g600);font-weight:600}
+.forgot-lnk:hover{text-decoration:underline}
+
+/* Remember me */
+.check-row{display:flex;align-items:center;gap:8px}
+.custom-chk{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--n300);background:var(--n50);display:flex;align-items:center;justify-content:center;cursor:none;flex-shrink:0;transition:all .18s}
+.custom-chk.checked{background:var(--g600);border-color:var(--g600)}
+.check-lbl{font-size:.82rem;color:var(--n600)}
+
+/* Submit button */
+.btn-submit{
+  padding:14px;border-radius:var(--r2);background:var(--g600);color:#fff;
+  font-size:.95rem;font-weight:700;transition:all .22s;
+  box-shadow:0 4px 16px rgba(34,197,94,.3);margin-top:4px;
+  display:flex;align-items:center;justify-content:center;gap:8px;position:relative;overflow:hidden;
+}
+.btn-submit:hover{background:var(--g700);transform:translateY(-1px);box-shadow:var(--shg)}
+.btn-submit:active{transform:translateY(0)}
+.btn-submit.loading{pointer-events:none;opacity:.75}
+.btn-submit .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none}
+.btn-submit.loading .spin{display:block}
+.btn-submit.loading .btn-txt{opacity:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Divider */
+.or-div{display:flex;align-items:center;gap:12px;margin:4px 0}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--n200)}
+.or-div span{font-size:.75rem;color:var(--n400);font-weight:600}
+
+/* OAuth buttons */
+.oauth-btns{display:flex;gap:10px}
+.oauth-btn{flex:1;padding:11px;border-radius:var(--r2);border:1.5px solid var(--n200);background:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:.82rem;font-weight:600;color:var(--n700);transition:all .2s}
+.oauth-btn:hover{border-color:var(--n300);background:var(--n50);transform:translateY(-1px)}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--n900);color:#fff;padding:12px 22px;border-radius:99px;font-size:.84rem;font-weight:600;opacity:0;transition:all .3s;z-index:9000;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{background:var(--g700)}
+.toast.error-t{background:#dc2626}
+
+/* Alert box */
+.alert{display:none;padding:12px 16px;border-radius:var(--r2);font-size:.84rem;font-weight:500;margin-bottom:4px;border:1px solid}
+.alert.show{display:flex;align-items:center;gap:10px}
+.alert.success{background:var(--g50);border-color:var(--g200);color:var(--g700)}
+.alert.error-a{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+
+/* Password strength */
+.pw-strength{margin-top:6px;display:none}
+.pw-strength.show{display:block}
+.pw-bars{display:flex;gap:4px;margin-bottom:4px}
+.pw-bar{flex:1;height:3px;border-radius:99px;background:var(--n200);transition:background .3s}
+.pw-lbl{font-size:.72rem;font-weight:600;color:var(--n400)}
+
+/* Terms */
+.terms-txt{font-size:.77rem;color:var(--n400);text-align:center;margin-top:8px;line-height:1.5}
+.terms-txt a{color:var(--g600)}
+
+/* Mobile */
+@media(max-width:768px){
+  body{flex-direction:column;overflow:auto;cursor:auto}
+  .cur{display:none}
+  .left-panel{min-height:40vh;padding:24px}
+  .lp-stats,.lp-quote{display:none}
+  .right-panel{width:100%;padding:32px 24px}
+  button{cursor:pointer}
+}
+</style>
+</head>
+<body>
+
+<div class="cur"><div class="cur-d" id="CD"></div><div class="cur-r" id="CR"></div></div>
+<div class="toast" id="toast"></div>
+
+<!-- LEFT PANEL -->
+<div class="left-panel">
+  <div class="lp-top">
+    <a href="index.html" class="logo">      <div class="logo-ic">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d='M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.68 19 2c1 2 2 4.5 2 7A7 7 0 0 1 11 20z'/>
+          <path d='M7 20a1 1 0 0 0 4 0c0-3-1-7-4-11'/>
+        </svg>
+      </div>
+      <div class="logo-nm">Agri<span>Sense</span></div>
+    </a>
+  </div>
+
+  <div class="lp-bottom">
+    <div class="lp-hero">
+      <div class="lp-eyebrow"><div class="ey-dot"></div>AI-Powered Smart Agriculture</div>
+      <h2 class="lp-h">
+        Your farm's intelligence,
+        <em>in your hands</em>
+      </h2>
+      <p class="lp-sub">Access real-time crop advice, mandi prices, disease detection, and your personal AgriBot — all in one platform built for Indian farmers.</p>
+      <div class="lp-stats">
+        <div class="lp-stat"><div class="lp-stat-n">95%</div><div class="lp-stat-l">Disease Accuracy</div></div>
+        <div class="lp-stat"><div class="lp-stat-n">10+</div><div class="lp-stat-l">Crop Varieties</div></div>
+        <div class="lp-stat"><div class="lp-stat-n">7</div><div class="lp-stat-l">AI Modules</div></div>
+      </div>
+      <div class="lp-quote">
+        <div class="lp-q-text">"AgriSense helped me identify early blight before it spread to my entire tomato crop. I saved nearly 60% of my yield that season."</div>
+        <div class="lp-q-author">
+          <div class="lp-q-av">R</div>
+          <div>
+            <div class="lp-q-name">Ramesh Patil</div>
+            <div class="lp-q-role">Tomato Farmer, Nashik</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="right-panel">
+  <div class="rp-header">
+    <div class="rp-title">Welcome back 👋</div>
+    <div class="rp-sub">New to AgriSense? <a href="#" onclick="switchTab('register');return false">Create a free account</a></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="auth-tabs">
+    <div class="auth-tab act" id="tab-login" onclick="switchTab('login')">Sign In</div>
+    <div class="auth-tab" id="tab-register" onclick="switchTab('register')">Register</div>
+  </div>
+
+  <!-- Alert -->
+  <div class="alert" id="alert"></div>
+
+  <!-- LOGIN FORM -->
+  <form class="auth-form" id="form-login" onsubmit="handleLogin(event)">
+    <div class="field">
+      <label class="flbl">Email / Phone</label>
+      <div class="finp-wrap">
+        <svg class="finp-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/></svg>
+        <input type="text" id="login-email" class="finp has-icon" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <span class="field-err" id="login-email-err">Please enter a valid email or phone number</span>
+    </div>
+
+    <div class="field">
+      <label class="flbl">Password</label>
+      <div class="finp-wrap">
+        <svg class="finp-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>
+        <input type="password" id="login-pw" class="finp has-icon" placeholder="Enter your password" autocomplete="current-password">
+        <button type="button" class="finp-eye" onclick="togglePw('login-pw',this)" title="Show/hide password">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="eye-login"><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z'/><circle cx='12' cy='12' r='3'/></svg>
+        </button>
+      </div>
+      <span class="field-err" id="login-pw-err">Password is required</span>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:-6px">
+      <div class="check-row" onclick="toggleCheck('remember')">
+        <div class="custom-chk" id="remember"></div>
+        <span class="check-lbl">Remember me</span>
+      </div>
+      <a href="#" class="forgot-lnk" onclick="showForgot();return false">Forgot password?</a>
+    </div>
+
+    <button type="submit" class="btn-submit" id="login-btn">
+      <div class="spin"></div>
+      <span class="btn-txt">Sign In</span>
+    </button>
+
+    <div class="or-div"><span>or continue with</span></div>
+    <div class="oauth-btns">
+      <button type="button" class="oauth-btn" onclick="oauthLogin('google')">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Google
+      </button>
+      <button type="button" class="oauth-btn" onclick="oauthLogin('phone')">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="var(--g600)" stroke-width="2" stroke-linecap="round"><path d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.12 6.12l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/></svg>
+        OTP Login
+      </button>
+    </div>
+  </form>
+
+  <!-- REGISTER FORM -->
+  <form class="auth-form hidden" id="form-register" onsubmit="handleRegister(event)">
+    <div class="name-row">
+      <div class="field">
+        <label class="flbl">First Name</label>
+        <input type="text" id="reg-fname" class="finp" placeholder="Ramesh" autocomplete="given-name">
+        <span class="field-err" id="reg-fname-err">First name is required</span>
+      </div>
+      <div class="field">
+        <label class="flbl">Last Name</label>
+        <input type="text" id="reg-lname" class="finp" placeholder="Patil" autocomplete="family-name">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="flbl">Email Address</label>
+      <div class="finp-wrap">
+        <svg class="finp-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/></svg>
+        <input type="email" id="reg-email" class="finp has-icon" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <span class="field-err" id="reg-email-err">Enter a valid email address</span>
+    </div>
+
+    <div class="field">
+      <label class="flbl">Phone Number</label>
+      <div class="finp-wrap">
+        <svg class="finp-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d='M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.12 6.12l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z'/></svg>
+        <input type="tel" id="reg-phone" class="finp has-icon" placeholder="+91 98765 43210" autocomplete="tel">
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="flbl">Password</label>
+      <div class="finp-wrap">
+        <svg class="finp-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>
+        <input type="password" id="reg-pw" class="finp has-icon" placeholder="Create a strong password" oninput="checkPwStrength(this.value)" autocomplete="new-password">
+        <button type="button" class="finp-eye" onclick="togglePw('reg-pw',this)">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z'/><circle cx='12' cy='12' r='3'/></svg>
+        </button>
+      </div>
+      <div class="pw-strength" id="pw-strength">
+        <div class="pw-bars"><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div><div class="pw-bar" id="pb4"></div></div>
+        <div class="pw-lbl" id="pw-lbl">Weak</div>
+      </div>
+      <span class="field-err" id="reg-pw-err">Password must be at least 8 characters</span>
+    </div>
+
+    <div class="field">
+      <label class="flbl">Confirm Password</label>
+      <div class="finp-wrap">
+        <svg class="finp-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x='3' y='11' width='18' height='11' rx='2'/><path d='M7 11V7a5 5 0 0 1 10 0v4'/></svg>
+        <input type="password" id="reg-pw2" class="finp has-icon" placeholder="Repeat your password" autocomplete="new-password">
+      </div>
+      <span class="field-err" id="reg-pw2-err">Passwords do not match</span>
+    </div>
+
+    <div class="check-row" onclick="toggleCheck('agree')" style="margin-top:-4px">
+      <div class="custom-chk" id="agree"></div>
+      <span class="check-lbl">I agree to the <a href="#" style="color:var(--g600);font-weight:600" onclick="event.stopPropagation()">Terms of Service</a> and <a href="#" style="color:var(--g600);font-weight:600" onclick="event.stopPropagation()">Privacy Policy</a></span>
+    </div>
+
+    <button type="submit" class="btn-submit" id="reg-btn">
+      <div class="spin"></div>
+      <span class="btn-txt">Create Account</span>
+    </button>
+  </form>
+
+  <!-- FORGOT PASSWORD FORM -->
+  <form class="auth-form hidden" id="form-forgot" onsubmit="handleForgot(event)">
+    <div style="margin-bottom:8px">
+      <button type="button" onclick="switchTab('login')" style="display:flex;align-items:center;gap:6px;font-size:.82rem;color:var(--n500);font-weight:600;cursor:none">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1='19' y1='12' x2='5' y2='12'/><polyline points='12 19 5 12 12 5'/></svg>
+        Back to Sign In
+      </button>
+      <div style="font-size:1.1rem;font-weight:800;color:var(--n900);margin-top:10px;letter-spacing:-.03em">Reset your password</div>
+      <div style="font-size:.86rem;color:var(--n500);margin-top:4px">Enter your email and we'll send you a reset link.</div>
+    </div>
+
+    <div class="field">
+      <label class="flbl">Email Address</label>
+      <div class="finp-wrap">
+        <svg class="finp-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x='2' y='4' width='20' height='16' rx='2'/><path d='m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'/></svg>
+        <input type="email" id="forgot-email" class="finp has-icon" placeholder="you@example.com">
+      </div>
+      <span class="field-err" id="forgot-email-err">Enter a valid email</span>
+    </div>
+
+    <button type="submit" class="btn-submit" id="forgot-btn">
+      <div class="spin"></div>
+      <span class="btn-txt">Send Reset Link</span>
+    </button>
+  </form>
+</div>
+
+<script>
+// Cursor
+const CD=document.getElementById('CD'),CR=document.getElementById('CR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;CD.style.transform=`translate(${mx}px,${my}px)`;});
+(function ar(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;CR.style.transform=`translate(${rx}px,${ry}px)`;requestAnimationFrame(ar);})();
+
+// Tab switching
+function switchTab(tab){
+  document.querySelectorAll('.auth-form').forEach(f=>f.classList.add('hidden'));
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('act'));
+  clearAlert();
+  if(tab==='login'){
+    document.getElementById('form-login').classList.remove('hidden');
+    document.getElementById('tab-login').classList.add('act');
+    document.querySelector('.rp-title').textContent='Welcome back 👋';
+    document.querySelector('.rp-sub').innerHTML='New to AgriSense? <a href="#" onclick="switchTab(\'register\');return false">Create a free account</a>';
+  } else if(tab==='register'){
+    document.getElementById('form-register').classList.remove('hidden');
+    document.getElementById('tab-register').classList.add('act');
+    document.querySelector('.rp-title').textContent='Create your account';
+    document.querySelector('.rp-sub').innerHTML='Already have one? <a href="#" onclick="switchTab(\'login\');return false">Sign in instead</a>';
+  } else if(tab==='forgot'){
+    document.getElementById('form-forgot').classList.remove('hidden');
+    document.querySelector('.rp-title').textContent='Forgot password?';
+    document.querySelector('.rp-sub').innerHTML='';
+  }
+}
+
+// Show/hide password
+function togglePw(id,btn){
+  const inp=document.getElementById(id);
+  const isText=inp.type==='text';
+  inp.type=isText?'password':'text';
+  btn.querySelector('svg').innerHTML=isText
+    ?'<path d=\'M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z\'/><circle cx=\'12\' cy=\'12\' r=\'3\'/>'
+    :'<path d=\'M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24\'/><line x1=\'1\' y1=\'1\' x2=\'23\' y2=\'23\'/>';
+}
+
+// Checkbox toggle
+function toggleCheck(id){
+  document.getElementById(id).classList.toggle('checked');
+}
+
+// Password strength
+function checkPwStrength(pw){
+  const s=document.getElementById('pw-strength');
+  if(!pw){s.classList.remove('show');return;}
+  s.classList.add('show');
+  let score=0;
+  if(pw.length>=8)score++;
+  if(/[A-Z]/.test(pw))score++;
+  if(/[0-9]/.test(pw))score++;
+  if(/[^A-Za-z0-9]/.test(pw))score++;
+  const bars=[document.getElementById('pb1'),document.getElementById('pb2'),document.getElementById('pb3'),document.getElementById('pb4')];
+  const colors=['#ef4444','#f97316','#eab308','#22c55e'];
+  const labels=['Weak','Fair','Good','Strong'];
+  bars.forEach((b,i)=>{b.style.background=i<score?colors[score-1]:'var(--n200)';});
+  document.getElementById('pw-lbl').textContent=labels[score-1]||'Weak';
+  document.getElementById('pw-lbl').style.color=colors[score-1]||'#ef4444';
+}
+
+// Alert
+function showAlert(msg,type='error-a'){
+  const a=document.getElementById('alert');
+  a.className=`alert show ${type}`;
+  a.innerHTML=`<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="flex-shrink:0">${type==='success'?'<polyline points="20 6 9 17 4 12"/>':'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}</svg>${msg}`;
+}
+function clearAlert(){const a=document.getElementById('alert');a.className='alert';a.innerHTML='';}
+
+// Toast
+function toast(msg,type='',dur=2800){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast show ${type}`;
+  setTimeout(()=>t.className='toast',dur);
+}
+
+// Field validation helpers
+function setErr(id,show){
+  const el=document.getElementById(id);
+  if(el){el.classList.toggle('show',show);}
+}
+function setInpErr(id,show){
+  const el=document.getElementById(id);
+  if(el){el.classList.toggle('error',show);}
+}
+
+// API helper (uses unified agriApi or direct fetch)
+async function api(path,method='GET',body=null){
+  if(window.agriApi){
+    return window.agriApi(path, method, body);
+  }
+  const opts={method,headers:{'Content-Type':'application/json'}};
+  if(body)opts.body=JSON.stringify(body);
+  const res=await fetch(window.location.origin+path,opts);
+  return res.json();
+}
+
+// Check existing session on page load
+window.addEventListener('DOMContentLoaded', async () => {
+  if (window.agriAuth) {
+    const user = await window.agriAuth.getUser();
+    if (user && !window.location.search.includes('logout')) {
+      toast('Welcome back! Redirecting...', 'success', 1200);
+      setTimeout(() => window.location.href = 'index.html', 1000);
+    }
+  }
+});
+
+// LOGIN
+async function handleLogin(e){
+  e.preventDefault();
+  clearAlert();
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-pw').value;
+  let valid=true;
+  if(!email){setErr('login-email-err',true);setInpErr('login-email',true);valid=false;}
+  else{setErr('login-email-err',false);setInpErr('login-email',false);}
+  if(!pw){setErr('login-pw-err',true);setInpErr('login-pw',true);valid=false;}
+  else{setErr('login-pw-err',false);setInpErr('login-pw',false);}
+  if(!valid)return;
+  const btn=document.getElementById('login-btn');
+  btn.classList.add('loading');
+  try{
+    const remember = document.getElementById('remember').classList.contains('checked');
+    const data = window.agriAuth ? await window.agriAuth.login({ email, password: pw, remember }) : await api('/api/auth/login','POST',{email,password:pw,remember});
+    if(data.success){
+      toast('Signed in successfully!','success');
+      setTimeout(()=>window.location.href='index.html',1000);
+    } else {
+      showAlert(data.message||'Invalid email or password');
+    }
+  } catch(err){
+    showAlert('Could not connect to server. Is Flask running?');
+  }
+  btn.classList.remove('loading');
+}
+
+// REGISTER
+async function handleRegister(e){
+  e.preventDefault();
+  clearAlert();
+  const fname=document.getElementById('reg-fname').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pw=document.getElementById('reg-pw').value;
+  const pw2=document.getElementById('reg-pw2').value;
+  const agreed=document.getElementById('agree').classList.contains('checked');
+  let valid=true;
+  if(!fname){setErr('reg-fname-err',true);setInpErr('reg-fname',true);valid=false;}
+  else{setErr('reg-fname-err',false);setInpErr('reg-fname',false);}
+  if(!email||!/\S+@\S+\.\S+/.test(email)){setErr('reg-email-err',true);setInpErr('reg-email',true);valid=false;}
+  else{setErr('reg-email-err',false);setInpErr('reg-email',false);}
+  if(pw.length<8){setErr('reg-pw-err',true);setInpErr('reg-pw',true);valid=false;}
+  else{setErr('reg-pw-err',false);setInpErr('reg-pw',false);}
+  if(pw!==pw2){setErr('reg-pw2-err',true);setInpErr('reg-pw2',true);valid=false;}
+  else{setErr('reg-pw2-err',false);setInpErr('reg-pw2',false);}
+  if(!agreed){showAlert('Please agree to the Terms of Service to continue');valid=false;}
+  if(!valid)return;
+  const btn=document.getElementById('reg-btn');
+  btn.classList.add('loading');
+  try{
+    const regData = {
+      firstName: fname,
+      lastName: document.getElementById('reg-lname').value.trim(),
+      email,
+      phone: document.getElementById('reg-phone').value.trim(),
+      password: pw
+    };
+    const data = window.agriAuth ? await window.agriAuth.register(regData) : await api('/api/auth/register','POST',{first_name:fname,last_name:regData.lastName,email,phone:regData.phone,password:pw});
+    if(data.success){
+      showAlert('Account created! Please sign in.','success');
+      setTimeout(()=>switchTab('login'),1500);
+    } else {
+      showAlert(data.message||'Registration failed. Please try again.');
+    }
+  } catch(err){
+    showAlert('Could not connect to server. Is Flask running?');
+  }
+  btn.classList.remove('loading');
+}
+
+// FORGOT PASSWORD
+async function handleForgot(e){
+  e.preventDefault();
+  clearAlert();
+  const email=document.getElementById('forgot-email').value.trim();
+  if(!email||!/\S+@\S+\.\S+/.test(email)){setErr('forgot-email-err',true);setInpErr('forgot-email',true);return;}
+  setErr('forgot-email-err',false);setInpErr('forgot-email',false);
+  const btn=document.getElementById('forgot-btn');
+  btn.classList.add('loading');
+  try{
+    const data = window.agriAuth ? await window.agriAuth.forgotPassword(email) : await api('/api/auth/forgot-password','POST',{email});
+    if(data.success){
+      showAlert('Reset link sent! Check your email inbox.','success');
+    } else {
+      showAlert(data.message||'Email not found in our system');
+    }
+  } catch(err){
+    showAlert('Could not connect to server. Is Flask running?');
+  }
+  btn.classList.remove('loading');
+}
+
+function showForgot(){switchTab('forgot');}
+
+async function oauthLogin(provider){
+  if(provider==='google'){
+    if(window.agriAuth && window.agriAuth.isConfigured()){
+      const res = await window.agriAuth.signInWithOAuth('google');
+      if(!res.success) toast('Google OAuth: ' + res.message);
+    } else {
+      toast('Google OAuth — configure client ID in Supabase Auth dashboard', 3500);
+    }
+  } else {
+    const phone = prompt('Enter your phone number for OTP (e.g. +91 98765 43210):');
+    if(!phone) return;
+    if(window.agriAuth && window.agriAuth.isConfigured()){
+      const res = await window.agriAuth.sendPhoneOtp(phone);
+      if(res.success){
+        const code = prompt('Enter 6-digit OTP received via SMS:');
+        if(code){
+          const verifyRes = await window.agriAuth.verifyPhoneOtp(phone, code);
+          if(verifyRes.success){
+            toast('Signed in via OTP!', 'success');
+            setTimeout(()=>window.location.href='index.html', 1000);
+          } else {
+            toast('Invalid OTP code');
+          }
+        }
+      } else {
+        toast('OTP Error: ' + res.message);
+      }
+    } else {
+      toast('OTP Login — configure Twilio/SMS provider in Supabase Dashboard', 3500);
+    }
+  }
+}
+</script>
+</body>
+</html>

@@ -17,6 +17,26 @@ def get_calendar_events():
     return success_response(events=events, crop=crop)
 
 
+@calendar_bp.route("/api/calendar/daily-advisory", methods=["GET"])
+def get_daily_advisory():
+    """
+    Returns AI date-specific health monitoring and recommended actions:
+    GET /api/calendar/daily-advisory?crop=Rice&month=6&day=15
+    """
+    crop = request.args.get("crop", "Rice")
+    month = request.args.get("month", "6")
+    day = request.args.get("day", "15")
+    sowing_date = request.args.get("sowing_date")
+    
+    advisory = crop_calendar.get_daily_advisory(
+        crop_name=crop,
+        month=int(month),
+        day=int(day),
+        sowing_date_str=sowing_date
+    )
+    return success_response(**advisory)
+
+
 @calendar_bp.route("/api/calendar/generate", methods=["POST"])
 @optional_auth
 def generate_calendar():

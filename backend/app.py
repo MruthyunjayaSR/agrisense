@@ -43,8 +43,10 @@ def create_app():
     def serve_index():
         candidates = [
             ROOT_DIR / "index.html",
+            Path(__file__).resolve().parent / "index.html",
             Path(os.getcwd()) / "index.html",
-            Path("/var/task") / "index.html"
+            Path("/var/task") / "index.html",
+            Path("/var/task/backend") / "index.html"
         ]
         for p in candidates:
             if p.is_file():
@@ -59,8 +61,10 @@ def create_app():
     def serve_login():
         candidates = [
             ROOT_DIR / "login.html",
+            Path(__file__).resolve().parent / "login.html",
             Path(os.getcwd()) / "login.html",
-            Path("/var/task") / "login.html"
+            Path("/var/task") / "login.html",
+            Path("/var/task/backend") / "login.html"
         ]
         for p in candidates:
             if p.is_file():
@@ -75,8 +79,10 @@ def create_app():
     def serve_frontend_assets(filename):
         candidates = [
             ROOT_DIR / "frontend",
+            Path(__file__).resolve().parent / "frontend",
             Path(os.getcwd()) / "frontend",
-            Path("/var/task") / "frontend"
+            Path("/var/task") / "frontend",
+            Path("/var/task/backend") / "frontend"
         ]
         for c_dir in candidates:
             target = c_dir / filename

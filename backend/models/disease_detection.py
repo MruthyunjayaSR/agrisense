@@ -142,16 +142,70 @@ class DiseaseDetectionModel:
 
     def predict_from_image(self, image_data):
         """
-        Takes image bytes, PIL Image, or Base64 string and runs computer vision diagnosis
+        Takes image bytes, PIL Image, or Base64 string and runs computer vision diagnosis.
+        First validates whether the image contains plant foliage / a crop leaf.
         """
         img = self._decode_image(image_data)
         if img is None:
-            # Fallback healthy response if image is empty or invalid
-            return self._build_result("Healthy", 92.5)
+            return self._build_non_leaf_result("Image could not be decoded. Please upload a valid JPG, PNG, or WebP leaf photo.")
+
+        # Check if the image actually contains plant foliage / crop leaf
+        is_leaf, foliage_ratio = self.is_leaf_image(img)
+        if not is_leaf:
+            return self._build_non_leaf_result()
 
         # Feature Extraction: Analyze color distributions, lesion ratio and green index
         diagnosis, confidence = self._analyze_leaf_features(img)
-        return self._build_result(diagnosis, confidence)
+        res = self._build_result(diagnosis, confidence)
+        res["is_leaf"] = True
+        res["foliage_ratio"] = round(foliage_ratio * 100, 1)
+        return res
+
+    def is_leaf_image(self, img: Image.Image):
+        """
+        Calculates vegetation / foliage pixel ratio to verify image contains crop leaves
+        rather than buildings (e.g. Taj Mahal), animals, vehicles, human faces, or random objects.
+        """
+        try:
+            img_small = img.resize((128, 128))
+            arr = np.array(img_small, dtype=np.float32) / 255.0
+            r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+
+            # 1. Vibrant Green foliage: g dominant over r and b
+            green_mask = (g > r * 1.05) & (g > b * 1.05) & (g > 0.15)
+            # 2. Chlorotic / Yellowing diseased foliage (Yellow Mosaic, Leaf Curl)
+            yellow_mask = (r > 0.28) & (g > 0.28) & (g > b * 1.25) & (r > b * 1.20)
+            # 3. Necrotic / Brown / Rust diseased foliage (Late Blight, Rust, Early Blight)
+            brown_mask = (r > 0.22) & (g > 0.14) & (g < r * 0.95) & (b < g * 0.85)
+
+            combined_foliage = green_mask | yellow_mask | brown_mask
+            foliage_ratio = float(np.sum(combined_foliage) / (128 * 128))
+
+            # Non-leaf objects (Taj Mahal, sky, walls, cars) have foliage_ratio < 0.18
+            is_leaf = foliage_ratio >= 0.18
+            return is_leaf, foliage_ratio
+        except Exception as e:
+            print(f"[DiseaseDetection] Foliage verification error: {e}")
+            return True, 0.50
+
+    def _build_non_leaf_result(self, custom_msg: str = None):
+        return {
+            "is_leaf": False,
+            "disease": "Not a Crop Leaf",
+            "confidence": 0.0,
+            "pathogen": "No plant foliage detected",
+            "severity": "N/A",
+            "color": "orange",
+            "description": custom_msg or "The uploaded photo does not appear to contain a crop leaf. Please provide a clear, focused photo of a plant leaf for accurate disease diagnosis.",
+            "treatment": "Please photograph an actual crop leaf in good daylight, 15–25 cm away from the leaf surface.",
+            "organic_treatment": "Once a clear leaf image is uploaded, customized organic remedies and bio-fungicides will be prescribed.",
+            "prevention": [
+                "Position the camera 15–25 cm from the plant leaf.",
+                "Ensure the leaf fills the majority of the image frame.",
+                "Capture the photo in clear natural daylight without heavy shadows.",
+                "Ensure disease spots or lesions are in sharp focus."
+            ]
+        }
 
     def _decode_image(self, image_data):
         try:

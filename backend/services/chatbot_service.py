@@ -105,19 +105,35 @@ class AgriBotService:
         return None
 
     def _domain_knowledge_lookup(self, message: str, lang_code: str):
-        msg = message.lower()
+        msg = message.lower().strip()
         kb = self.MULTILINGUAL_KNOWLEDGE_BASE.get(lang_code, self.MULTILINGUAL_KNOWLEDGE_BASE["en"])
         
-        if any(w in msg for w in ["monsoon", "rain", "season", "crop", "मानसून", "फसल", "पावसाळा", "पिके", "ಮುಂಗಾರು", "ಬೆಳೆ", "వర్షాకాలం", "పంటలు", "பருவமழை", "பயிர்"]):
-            return kb["monsoon"]
-        elif any(w in msg for w in ["blight", "disease", "cure", "treat", "झुलसा", "कीड", "रोग", "ब्लाइट", "ಬೆಂಕಿ", "ರೋಗ", "తెగులు", "கருகல்"]):
-            return kb["blight"]
-        elif any(w in msg for w in ["price", "tomato", "rate", "cost", "mandi", "भाव", "दर", "ಬೆಲೆ", "ಟೊಮೇಟೊ", "ధర", "விலை"]):
-            return kb["price"]
-        elif any(w in msg for w in ["company", "direct", "broker", "middlemen", "दलाल", "कंपनी", "मध्यस्थ", "ದಲ್ಲಾಳಿ", "దళారీ", "தரகர்"]):
-            return kb["direct"]
-        elif any(w in msg for w in ["pm-kisan", "pmkisan", "scheme", "subsidy", "योजना", "ಯೋಜನೆ", "పథకం", "திட்டம்"]):
-            return kb["pmkisan"]
+        # Friendly Greetings
+        if msg in ["hi", "hello", "hey", "namaste", "namaskar", "vanakkam", "namaskara", "hi agribot", "hello agribot"] or any(msg.startswith(g) for g in ["hi ", "hello ", "hey "]):
+            greetings = {
+                "hi": "नमस्ते किसान भाई! 🙏 मैं एग्रीबॉट हूँ। मैं आपकी खेती, फसल सुरक्षा, खाद और मंडी भाव में मदद के लिए तैयार हूँ। आप क्या जानना चाहते हैं?",
+                "kn": "ನಮಸ್ಕಾರ ರೈತ ಬಾಂಧವರೇ! 🙏 ನಾನು ಅಗ್ರಿಬಾಟ್. ಬೆಳೆ ಸಲಹೆ, ಗೊಬ್ಬರ, ರೋಗ ನಿವಾರಣೆ ಮತ್ತು ಮಾರುಕಟ್ಟೆ ದರಗಳ ಬಗ್ಗೆ ಕೇಳಿ.",
+                "te": "నమస్కారం రైతు సోదరులారా! 🙏 నేను అగ్రిబాట్. పంటల సాగు, ఎరువులు మరియు మార్కెట్ ధరల గురించి ఏమైనా అడగండి.",
+                "ta": "வணக்கம் விவசாயத் தோழரே! 🙏 நான் அக்ரிபாட். பயிர் ஆலோசனை, உர மேலாண்மை மற்றும் சந்தை நிலவரங்களுக்கு கேளுங்கள்.",
+                "mr": "नमस्कार शेतकरी मित्रांनो! 🙏 मी AgriBot. पिके, खते, कीड नियंत्रण आणि बाजारभावासाठी मी मदत करू शकतो.",
+                "en": "Namaste! 🙏 I am AgriBot, your personal agricultural AI assistant. Ask me about crop advisory, disease treatments, fertilizer dosage, or live mandi prices!"
+            }
+            return greetings.get(lang_code, greetings["en"])
+
+        if any(w in msg for w in ["monsoon", "rain", "season", "crop", "sow", "मानसून", "फसल", "पावसाळा", "पिके", "ಮುಂಗಾರು", "ಬೆಳೆ", "వర్షాకాలం", "పంటలు", "பருவமழை", "பயிர்"]):
+            return kb.get("monsoon", self.MULTILINGUAL_KNOWLEDGE_BASE["en"]["monsoon"])
+        elif any(w in msg for w in ["blight", "disease", "cure", "treat", "fungus", "pesticide", "spray", "झुलसा", "कीड", "रोग", "ब्लाइट", "ಬೆಂಕಿ", "ರೋಗ", "తెగులు", "கருகல்"]):
+            return kb.get("blight", self.MULTILINGUAL_KNOWLEDGE_BASE["en"]["blight"])
+        elif any(w in msg for w in ["price", "tomato", "rate", "cost", "mandi", "market", "sell", "भाव", "दर", "ಬೆಲೆ", "ಟೊಮೇಟೊ", "ధర", "விலை"]):
+            return kb.get("price", self.MULTILINGUAL_KNOWLEDGE_BASE["en"]["price"])
+        elif any(w in msg for w in ["company", "direct", "broker", "middlemen", "buyer", "दलाल", "कंपनी", "मध्यस्थ", "ದಲ್ಲಾಳಿ", "దళారీ", "தரகர்"]):
+            return kb.get("direct", self.MULTILINGUAL_KNOWLEDGE_BASE["en"]["direct"])
+        elif any(w in msg for w in ["pm-kisan", "pmkisan", "scheme", "subsidy", "yojana", "योजना", "ಯೋಜನೆ", "పథకం", "திட்டம்"]):
+            return kb.get("pmkisan", self.MULTILINGUAL_KNOWLEDGE_BASE["en"]["pmkisan"])
+        elif any(w in msg for w in ["fertilizer", "urea", "dap", "npk", "compost", "zinc", "soil", "खाद", "यूरिया"]):
+            return "Balanced Crop Nutrition: Follow a 4:2:1 N-P-K ratio. Apply full DAP and Potash as basal at sowing. Split Urea into 2-3 top dressings during vegetative and tillering stages. Apply Zinc Sulphate at 25 kg/ha if deficiency is observed."
+        elif any(w in msg for w in ["water", "irrigation", "drip", "moisture", "सिंचाई", "पानी"]):
+            return "Smart Water Management: For Rice, maintain 2-3 cm standing water during tillering and panicle emergence. For Wheat, CRI (21 days) and milking stages are critical. Adopting Drip Irrigation saves 40-50% water while boosting yield."
         else:
             return kb.get("default", self.MULTILINGUAL_KNOWLEDGE_BASE["en"]["default"])
 
